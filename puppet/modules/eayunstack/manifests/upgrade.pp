@@ -7,4 +7,7 @@ class eayunstack::upgrade (
   class { 'eayunstack::upgrade::neutron':
     fuel_settings => $fuel_settings,
   }
+  class { 'eayunstack::upgrade::cinder':
+    fuel_settings => $fuel_settings,
+  }
 }
