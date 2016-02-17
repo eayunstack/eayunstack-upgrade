@@ -1,0 +1,11 @@
+#!/bin/sh
+
+VPNSERVICE=$6
+IP=$5
+DEVICE=$2
+PIDFILE="/var/lib/neutron/pptp/$VPNSERVICE/connections/$IP"
+if [ -f $PIDFILE ]; then
+    kill -HUP `cat $PIDFILE`
+fi
+echo `lsof -t ${DEVICE}` > $PIDFILE
+chmod 444 $PIDFILE
