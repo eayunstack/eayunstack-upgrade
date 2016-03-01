@@ -43,6 +43,19 @@ class eayunstack::upgrade::nova (
       enable => true,
     }
 
+    augeas { 'change_cinder_catalog_info':
+      context => '/files/etc/nova/nova.conf',
+      lens => 'Puppet.lns',
+      incl => '/etc/nova/nova.conf',
+      changes => [
+        "rm DEFAULT/cinder_catalog_info",
+        "set cinder/catalog_info volumev2:cinderv2:internalURL",
+      ],
+      onlyif => 'match cinder/catalog_info[.="volumev2:cinderv2:internalURL"] size < 1',
+    }
+
+    Augeas['change_cinder_catalog_info'] ~> Service['openstack-nova-compute']
+
   } elsif $eayunstack_node_role == 'ceph-osd' {
 
     package { $packages[ceph]:
