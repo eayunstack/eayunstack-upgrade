@@ -1,6 +1,10 @@
 class eayunstack::upgrade::nova (
   $fuel_settings,
 ) {
+  $admin_auth_url = "http://${fuel_settings['management_vip']}:35357/v2.0"
+  $admin_username = 'cinder'
+  $admin_password = $fuel_settings['cinder']['user_password']
+  $admin_tenant_name = 'services'
 
   $packages = { controller => [
                               'python-nova', 'openstack-nova-objectstore', 'openstack-nova-api',
@@ -33,6 +37,22 @@ class eayunstack::upgrade::nova (
       enable => true,
     }
 
+    augeas { 'add_cinder_admin_info':
+      context => '/files/etc/nova/nova.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/nova/nova.conf',
+      changes => [
+        "set cinder/admin_auth_url ${admin_auth_url}",
+        "set cinder/admin_username ${admin_username}",
+        "set cinder/admin_password ${admin_password}",
+        "set cinder/admin_tenant_name ${admin_tenant_name}",
+      ],
+      onlyif => "match cinder/admin_username[.=\"${admin_username}\"] size < 1",
+    }
+
+    Augeas['add_cinder_admin_info'] ~> Service['openstack-nova-api']
+    Augeas['add_cinder_admin_info'] ~> Service['openstack-nova-conductor']
+
   } elsif $eayunstack_node_role == 'compute' {
 
     package { $packages[compute]:
@@ -43,18 +63,32 @@ class eayunstack::upgrade::nova (
       enable => true,
     }
 
+    augeas { 'add_cinder_admin_info':
+      context => '/files/etc/nova/nova.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/nova/nova.conf',
+      changes => [
+        "set cinder/admin_auth_url ${admin_auth_url}",
+        "set cinder/admin_username ${admin_username}",
+        "set cinder/admin_password ${admin_password}",
+        "set cinder/admin_tenant_name ${admin_tenant_name}",
+      ],
+      onlyif => "match cinder/admin_username[.=\"${admin_username}\"] size < 1",
+    }
+
     augeas { 'change_cinder_catalog_info':
       context => '/files/etc/nova/nova.conf',
-      lens => 'Puppet.lns',
-      incl => '/etc/nova/nova.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/nova/nova.conf',
       changes => [
         "rm DEFAULT/cinder_catalog_info",
         "set cinder/catalog_info volumev2:cinderv2:internalURL",
       ],
-      onlyif => 'match cinder/catalog_info[.="volumev2:cinderv2:internalURL"] size < 1',
+      onlyif  => 'match cinder/catalog_info[.="volumev2:cinderv2:internalURL"] size < 1',
     }
 
     Augeas['change_cinder_catalog_info'] ~> Service['openstack-nova-compute']
+    Augeas['add_cinder_admin_info'] ~> Service['openstack-nova-compute']
 
   } elsif $eayunstack_node_role == 'ceph-osd' {
 
