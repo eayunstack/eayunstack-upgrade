@@ -13,7 +13,7 @@ class eayunstack::upgrade::oslo::messaging (
 
     $all_related_services = [
       # Ceilometer
-      'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-api',
+      'openstack-ceilometer-alarm-notifier', 'httpd',
       'openstack-ceilometer-collector', 'openstack-ceilometer-notification',
       'openstack-ceilometer-central', 'openstack-ceilometer-alarm-evaluator',
       # Cinder

@@ -1,4 +1,4 @@
-class eayunstack::upgrade::ceilometer (
+class eayunstack::upgrade::ceilometer::ceilometer (
   $fuel_settings,
 ) {
   $packages = { controller => [
@@ -24,11 +24,13 @@ class eayunstack::upgrade::ceilometer (
       incl => '/etc/ceilometer/ceilometer.conf',
       changes => [
         "set DEFAULT/api_workers  $::processorcount",
+        "set DEFAULT/debug False",
+        "set api/pecan_debug False",
       ],
     }
     $systemd_services = [
-      'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-api',
-      'openstack-ceilometer-collector', 'openstack-ceilometer-notification',
+      'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-collector',
+      'openstack-ceilometer-notification',
     ]
 
     service { $systemd_services:
@@ -47,6 +49,11 @@ class eayunstack::upgrade::ceilometer (
       provider => 'pacemaker',
     }
 
+    service { 'openstack-ceilometer-api':
+      ensure => stopped,
+      enable => false,
+    }
+
     Package['openstack-ceilometer-alarm'] ~>
       Service['openstack-ceilometer-alarm-notifier']
     Package['openstack-ceilometer-notification'] ~>
@@ -60,6 +67,13 @@ class eayunstack::upgrade::ceilometer (
       Service['openstack-ceilometer-central']
     Package['openstack-ceilometer-alarm'] ~>
       Service['openstack-ceilometer-alarm-evaluator']
+
+    Service['openstack-ceilometer-api'] {
+      before => Service['httpd'],
+    }
+    Package['openstack-ceilometer-api'] {
+      notify => Service['httpd'],
+    }
 
   } elsif $eayunstack_node_role == 'compute' {
     package { $packages[compute]:
