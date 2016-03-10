@@ -1,4 +1,4 @@
-class eayunstack::upgrade::ceilometer (
+class eayunstack::upgrade::ceilometer::ceilometer (
   $fuel_settings,
 ) {
   $packages = { controller => [
@@ -27,8 +27,8 @@ class eayunstack::upgrade::ceilometer (
       ],
     }
     $systemd_services = [
-      'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-api',
-      'openstack-ceilometer-collector', 'openstack-ceilometer-notification',
+      'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-collector',
+      'openstack-ceilometer-notification',
     ]
 
     service { $systemd_services:
@@ -46,6 +46,10 @@ class eayunstack::upgrade::ceilometer (
       hasrestart => false,
       provider => 'pacemaker',
     }
+    service { 'openstack-ceilometer-api':
+      ensure => stopped,
+      enable => false,
+  }
 
     Package['openstack-ceilometer-alarm'] ~>
       Service['openstack-ceilometer-alarm-notifier']
