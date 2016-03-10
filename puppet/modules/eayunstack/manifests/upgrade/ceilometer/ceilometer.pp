@@ -17,18 +17,9 @@ class eayunstack::upgrade::ceilometer (
     package { $packages[controller]:
       ensure => latest,
     }
-
-    augeas { 'add-ceilometer-api':
-      context => '/files/etc/ceilometer/ceilometer.conf',
-      lens => 'Puppet.lns',
-      incl => '/etc/ceilometer/ceilometer.conf',
-      changes => [
-        "set DEFAULT/api_workers  $::processorcount",
-      ],
-    }
     $systemd_services = [
-      'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-api',
-      'openstack-ceilometer-collector', 'openstack-ceilometer-notification',
+      'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-collector',
+      'openstack-ceilometer-notification',
     ]
 
     service { $systemd_services:
@@ -47,6 +38,41 @@ class eayunstack::upgrade::ceilometer (
       provider => 'pacemaker',
     }
 
+    service { 'openstack-ceilometer-api':
+      ensure => stopped,
+      enable => false,
+    }
+
+    file { '/var/www/ceilometer/':
+      ensure => directory,
+    }
+
+    file { 'app.wsgi':
+      path => '/var/www/ceilometer/app.wsgi',
+      source => 'puppet:///modules/eayunstack/app.wsgi',
+      require => File['/var/www/ceilometer/'],
+    }
+
+    file { 'openstack-ceilometer.conf':
+      path => '/etc/httpd/conf.d/openstack-ceilometer.conf',
+      ensure => file,
+      content => template('eayunstack/ceilometer_http.conf.erb'),
+    }
+
+    augeas { 'ceilometer-update-debug':
+      context => '/files/etc/ceilometer/ceilometer.conf',
+      lens => 'Puppet.lns',
+      incl => '/etc/ceilometer/ceilometer.conf',
+      changes => [
+        "set default/debug False",
+        "set api/pecan_debug False",
+      ],
+    }
+    service { 'httpd':
+      ensure => running,
+      enable => true,
+    }
+
     Package['openstack-ceilometer-alarm'] ~>
       Service['openstack-ceilometer-alarm-notifier']
     Package['openstack-ceilometer-notification'] ~>
@@ -54,8 +80,10 @@ class eayunstack::upgrade::ceilometer (
     Package['openstack-ceilometer-collector'] ~>
       Service['openstack-ceilometer-collector']
     Package['openstack-ceilometer-api'] ~>
-      Augeas['add-ceilometer-api'] ~>
-        Service['openstack-ceilometer-api']
+      Service['openstack-ceilometer-api'] ~>
+        File['openstack-ceilometer.conf'] ~>
+          Augeas['ceilometer-update-debug'] ~>
+            Service['httpd']
     Package['openstack-ceilometer-central'] ~>
       Service['openstack-ceilometer-central']
     Package['openstack-ceilometer-alarm'] ~>

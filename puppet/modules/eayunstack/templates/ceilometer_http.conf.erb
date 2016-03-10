@@ -1,0 +1,24 @@
+# THIS FILE IS MANAGED BY PUPPET USE CEILOMETER HTTP CONFIGURE
+# <%= file %>
+#
+
+<% if @memorysize_mb.to_i < 1200 or @processorcount.to_i <= 3 %>
+  wsgi_daemon_processes = 3
+  wsgi_daemon_threads = 10
+<% else %>
+  wsgi_daemon_processes = @processorcount
+  wsgi_daemon_threads = 15
+<% end %>
+
+Listen 8777
+
+<VirtualHost *.8777>
+  WSGIDaemonProcess ceilometer-api user=ceilometer group=ceilometer processes=<%= wsgi_daemon_processes %> threads=<% wsgi_daemon_threads %>
+  WSGIScriptAlias / /var/www/ceilometer/app.wsgi
+  SetEnv APACHE_RUN_USER ceilometer
+  SetEnv APACHE_RUN_GROUP ceilometer
+  WSGIProcessGroup ceilometer-api
+  ErrorLog /var/log/httpd/ceilometer_error.log
+  LogLevel warn
+  CustomLog /var/log/httpd/ceilometer_access.log combined
+</VirtualHost>
