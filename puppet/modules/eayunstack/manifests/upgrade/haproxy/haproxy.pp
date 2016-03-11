@@ -31,6 +31,14 @@ class eayunstack::upgrade::haproxy::haproxy (
       notify  => Service['haproxy'],
     }
 
+    file { 'haproxy_novncproxy':
+      ensure  => file,
+      path    => '/etc/haproxy/conf.d/170-nova-novncproxy.cfg',
+      content => template('eayunstack/haproxy_novncproxy.erb'),
+      require => File['haproxy_directory'],
+      notify  => Service['haproxy'],
+    }
+
     Package['haproxy'] ~>
       Service['haproxy']
   }

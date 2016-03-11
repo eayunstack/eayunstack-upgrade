@@ -3,6 +3,9 @@ class eayunstack::upgrade (
 ) {
   include eayunstack::generic
 
+  class { 'eayunstack::upgrade::auto_evacuate::auto_evacuate':
+    fuel_settings => $fuel_settings,
+  }
   class { 'eayunstack::upgrade::ceilometer::ceilometer':
     fuel_settings => $fuel_settings,
   }
