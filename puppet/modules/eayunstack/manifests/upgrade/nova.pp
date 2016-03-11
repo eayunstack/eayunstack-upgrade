@@ -5,8 +5,8 @@ class eayunstack::upgrade::nova (
   $admin_username = 'cinder'
   $admin_password = $fuel_settings['cinder']['user_password']
   $admin_tenant_name = 'services'
-  # reclaim interval is 15 days.
-  $reclaim_instance_interval = '1296000'
+  # reclaim interval is 10 days.
+  $reclaim_instance_interval = '864000'
 
   $packages = { controller => [
                               'python-nova', 'openstack-nova-objectstore', 'openstack-nova-api',
@@ -59,8 +59,6 @@ class eayunstack::upgrade::nova (
       changes => [
         "set DEFAULT/reclaim_instance_interval ${reclaim_instance_interval}",
       ],
-      onlyif  => "match DEFAULT/reclaim_instance_interval[.=\"${reclaim_instance_interval}\"] size < 1",
-
     }
 
     Package['python-nova'] {
@@ -123,8 +121,6 @@ class eayunstack::upgrade::nova (
       changes => [
         "set DEFAULT/reclaim_instance_interval ${reclaim_instance_interval}",
       ],
-      onlyif  => "match DEFAULT/reclaim_instance_interval[.=\"${reclaim_instance_interval}\"] size < 1",
-
     }
 
     Package['python-nova'] {
