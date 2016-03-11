@@ -5,6 +5,8 @@ class eayunstack::upgrade::nova (
   $admin_username = 'cinder'
   $admin_password = $fuel_settings['cinder']['user_password']
   $admin_tenant_name = 'services'
+  # reclaim interval is 15 days.
+  $reclaim_instance_interval = '1296000'
 
   $packages = { controller => [
                               'python-nova', 'openstack-nova-objectstore', 'openstack-nova-api',
@@ -50,8 +52,35 @@ class eayunstack::upgrade::nova (
       onlyif => "match cinder/admin_username[.=\"${admin_username}\"] size < 1",
     }
 
-    Augeas['add_cinder_admin_info'] ~> Service['openstack-nova-api']
-    Augeas['add_cinder_admin_info'] ~> Service['openstack-nova-conductor']
+    augeas { 'set_reclaim_instance_interval':
+      context => '/files/etc/nova/nova.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/nova/nova.conf',
+      changes => [
+        "set DEFAULT/reclaim_instance_interval ${reclaim_instance_interval}",
+      ],
+      onlyif => "match DEFAULT/reclaim_instance_interval[.=\"${reclaim_instance_interval}\"] size < 1",
+
+    }
+
+    Package['python-nova'] {
+      notify => [
+        Augeas['add_cinder_admin_info'],
+        Augeas['set_reclaim_instance_interval'],
+      ],
+    }
+    Augeas['add_cinder_admin_info'] {
+      notify => [
+        Service['openstack-nova-api'],
+        Service['openstack-nova-conductor'],
+      ],
+    }
+    Augeas['set_reclaim_instance_interval'] {
+      notify => [
+        Service['openstack-nova-api'],
+        Service['openstack-nova-conductor'],
+      ],
+    }
 
   } elsif $eayunstack_node_role == 'compute' {
 
@@ -87,8 +116,28 @@ class eayunstack::upgrade::nova (
       onlyif  => 'match cinder/catalog_info[.="volumev2:cinderv2:internalURL"] size < 1',
     }
 
+    augeas { 'set_reclaim_instance_interval':
+      context => '/files/etc/nova/nova.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/nova/nova.conf',
+      changes => [
+        "set DEFAULT/reclaim_instance_interval ${reclaim_instance_interval}",
+      ],
+      onlyif => "match DEFAULT/reclaim_instance_interval[.=\"${reclaim_instance_interval}\"] size < 1",
+
+    }
+
+    Package['python-nova'] {
+      notify => [
+        Augeas['change_cinder_catalog_info'],
+        Augeas['add_cinder_admin_info'],
+        Augeas['set_reclaim_instance_interval'],
+      ],
+    }
+
     Augeas['change_cinder_catalog_info'] ~> Service['openstack-nova-compute']
     Augeas['add_cinder_admin_info'] ~> Service['openstack-nova-compute']
+    Augeas['set_reclaim_instance_interval'] ~> Service['openstack-nova-compute']
 
   } elsif $eayunstack_node_role == 'ceph-osd' {
 
