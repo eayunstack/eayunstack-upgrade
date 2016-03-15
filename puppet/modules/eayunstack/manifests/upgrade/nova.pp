@@ -105,17 +105,6 @@ class eayunstack::upgrade::nova (
       onlyif => "match cinder/admin_username[.=\"${admin_username}\"] size < 1",
     }
 
-    augeas { 'change_cinder_catalog_info':
-      context => '/files/etc/nova/nova.conf',
-      lens    => 'Puppet.lns',
-      incl    => '/etc/nova/nova.conf',
-      changes => [
-        "rm DEFAULT/cinder_catalog_info",
-        "set cinder/catalog_info volumev2:cinderv2:internalURL",
-      ],
-      onlyif  => 'match cinder/catalog_info[.="volumev2:cinderv2:internalURL"] size < 1',
-    }
-
     augeas { 'set_reclaim_instance_interval':
       context => '/files/etc/nova/nova.conf',
       lens    => 'Puppet.lns',
@@ -129,13 +118,11 @@ class eayunstack::upgrade::nova (
 
     Package['python-nova'] {
       notify => [
-        Augeas['change_cinder_catalog_info'],
         Augeas['add_cinder_admin_info'],
         Augeas['set_reclaim_instance_interval'],
       ],
     }
 
-    Augeas['change_cinder_catalog_info'] ~> Service['openstack-nova-compute']
     Augeas['add_cinder_admin_info'] ~> Service['openstack-nova-compute']
     Augeas['set_reclaim_instance_interval'] ~> Service['openstack-nova-compute']
 
