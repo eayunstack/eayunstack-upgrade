@@ -1,6 +1,8 @@
 class eayunstack::upgrade (
   $fuel_settings,
 ) {
+  include eayunstack::generic
+
   class { 'eayunstack::upgrade::ceilometer::ceilometer':
     fuel_settings => $fuel_settings,
   }
