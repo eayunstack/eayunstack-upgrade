@@ -1,6 +1,8 @@
 class eayunstack::upgrade (
   $fuel_settings,
 ) {
+  include eayunstack::generic
+
   class { 'eayunstack::upgrade::ceilometer::ceilometer':
     fuel_settings => $fuel_settings,
   }
@@ -29,6 +31,9 @@ class eayunstack::upgrade (
     fuel_settings => $fuel_settings,
   }
   class { 'eayunstack::upgrade::oslo::messaging':
+    fuel_settings => $fuel_settings,
+  }
+  class { 'eayunstack::upgrade::python-eventlet':
     fuel_settings => $fuel_settings,
   }
 }

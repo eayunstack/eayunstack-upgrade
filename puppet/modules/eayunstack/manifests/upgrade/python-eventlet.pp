@@ -1,17 +1,17 @@
-class eayunstack::upgrade::oslo::messaging (
+class eayunstack::upgrade::python-eventlet (
   $fuel_settings,
 ) {
 
-  $packages = ['python-oslo-messaging', 'python-kombu']
+  $packages = ['python-eventlet']
 
-  # On nodes of all roles, oslo-messaging is to be upgraded.
+  # On nodes of all roles, python-eventlet is to be upgraded.
   package { $packages:
     ensure => latest,
   }
 
   if $eayunstack_node_role == 'controller' {
 
-    Package['python-oslo-messaging'] ~>
+    Package['python-eventlet'] ~>
       Service[$::eayunstack::generic::openstack_services['controller']]
 
   } elsif $eayunstack_node_role == 'compute' {
