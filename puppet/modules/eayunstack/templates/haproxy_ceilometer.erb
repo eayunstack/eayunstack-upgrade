@@ -1,0 +1,22 @@
+<%
+loaded_data = YAML.load(ERB.new(File.read("/etc/astute.yaml")).result)
+management_vip = loaded_data['management_vip']
+public_vip = loaded_data['public_vip']
+node = loaded_data['nodes']
+%>
+listen ceilometer
+  bind <%= public_vip %>:8777
+  bind <%= management_vip %>:8777
+  balance  roundrobin
+  option tcpka
+  option httpclose
+  option  tcplog
+  timeout client 5h
+  timeout server 5h
+  <%- node.each do |node| -%>
+  <%- if node['role'] == 'controller' -%>
+  server <%= node['name'] %> <%= node['internal_address'] %>:8777 check inter 2000 rise 2 fall 5
+  <%- elsif node['role'] == 'primary-controller' -%>
+  server <%= node['name'] %> <%= node['internal_address'] %>:8777 check inter 2000 rise 2 fall 5
+  <%- end -%>
+  <%- end -%>
