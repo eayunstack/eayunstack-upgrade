@@ -20,6 +20,8 @@ class eayunstack::upgrade::http::http_ceilometer(
       path => '/etc/httpd/conf.d/openstack-ceilometer.conf',
       ensure => file,
       content => template('eayunstack/ceilometer_http.erb'),
+      require => File['ceilometer.wsgi'],
+      notify => Service['httpd']
     }
 
     service { 'httpd':
@@ -27,9 +29,8 @@ class eayunstack::upgrade::http::http_ceilometer(
       enable => true,
     }
 
-    File['ceilometer.wsgi'] ~>
-      File['http-ceilometer.conf'] ~>
-        Service['httpd']
+    Package ['httpd'] ~>
+      Service['httpd']
 
   }
   # There is nothing to do on api in compute.
