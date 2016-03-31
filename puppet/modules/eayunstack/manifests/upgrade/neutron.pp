@@ -61,6 +61,22 @@ class eayunstack::upgrade::neutron (
       onlyif => 'match vpnagent/vpn_device_driver[.="neutron.services.vpn.device_drivers.pptp.PPTPDriver"] size < 1',
     }
 
+    augeas { 'metering-agent':
+      context => '/files/etc/neutron/metering_agent.ini',
+      lens => 'Puppet.lns',
+      incl => '/etc/neutron/metering_agent.ini',
+      changes => [
+          'set DEFAULT/debug True',
+          'set DEFAULT/driver neutron.services.metering.drivers.iptables.iptables_driver.IptablesMeteringDriver',
+          'set DEFAULT/measure_interval 30',
+          'set DEFAULT/report_interval 50',
+          'set DEFAULT/interface_driver neutron.agent.linux.interface.OVSInterfaceDriver',
+          'set DEFAULT/use_namespaces True',
+        ],
+      require => Package['openstack-neutron-metering-agent'],
+      notify => Service['neutron-metering-agent'],
+    }
+
     file { 'replace-neutron-l3-agent':
       path   => "/usr/bin/neutron-l3-agent",
       ensure => file,
@@ -109,6 +125,7 @@ class eayunstack::upgrade::neutron (
         Service['neutron-server'],
       ],
     }
+
     Augeas['add-pptp-vpn-service-provider'] ~> Service['neutron-server']
     Exec['database-upgrade'] ~> Service['neutron-server']
 
