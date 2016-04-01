@@ -18,12 +18,43 @@ class eayunstack::upgrade::ceilometer (
       ensure => latest,
     }
 
-    augeas { 'add-ceilometer-api':
+    file { 'pipeline.yaml':
+      path => '/etc/ceilometer/pipeline.yaml',
+      ensure => file,
+      source => 'puppet:///modules/eayunstack/pipeline.yaml',
+      group => 'ceilometer',
+      require => Package['openstack-ceilometer-common'],
+      notify => [
+        Service['openstack-ceilometer-notification'], Service['openstack-ceilometer-api'],
+        Service['httpd'], Service['openstack-ceilometer-central'],
+      ],
+    }
+    file { 'event_definitions.yaml':
+      path => '/etc/ceilometer/event_definitions.yaml',
+      ensure => file,
+      source => 'puppet:///modules/eayunstack/event_definitions.yaml',
+      group => 'ceilometer',
+      require => Package['openstack-ceilometer-common'],
+      notify => Service['openstack-ceilometer-notification'],
+    }
+
+    augeas { 'ceilometer-conf':
       context => '/files/etc/ceilometer/ceilometer.conf',
       lens => 'Puppet.lns',
       incl => '/etc/ceilometer/ceilometer.conf',
       changes => [
         "set DEFAULT/api_workers  $::processorcount",
+        "set DEFAULT/pipeline_cfg_file /etc/ceilometer/pipeline.yaml",
+        "set event/definitions_cfg_file /etc/ceilometer/event_definitions.yaml",
+        "set notification/store_events True",
+      ],
+      require => [
+        Package['openstack-ceilometer-common'],
+        File['pipeline.yaml', 'event_definitions.yaml'],
+      ],
+      notify => [
+        Service['openstack-ceilometer-notification'], Service['openstack-ceilometer-api'],
+        Service['openstack-ceilometer-central'],
       ],
     }
     $systemd_services = [
@@ -54,8 +85,7 @@ class eayunstack::upgrade::ceilometer (
     Package['openstack-ceilometer-collector'] ~>
       Service['openstack-ceilometer-collector']
     Package['openstack-ceilometer-api'] ~>
-      Augeas['add-ceilometer-api'] ~>
-        Service['openstack-ceilometer-api']
+      Service['openstack-ceilometer-api']
     Package['openstack-ceilometer-central'] ~>
       Service['openstack-ceilometer-central']
     Package['openstack-ceilometer-alarm'] ~>
@@ -71,6 +101,29 @@ class eayunstack::upgrade::ceilometer (
     service { $systemd_services:
       ensure => running,
       enable => true,
+    }
+
+    file { 'pipeline.yaml':
+      path => '/etc/ceilometer/pipeline.yaml',
+      ensure => file,
+      source => 'puppet:///modules/eayunstack/pipeline.yaml',
+      group => 'ceilometer',
+      require => Package['openstack-ceilometer-common'],
+      notify => Service['openstack-ceilometer-compute'],
+    }
+
+    augeas { 'ceilometer-pipeline':
+      context => '/files/etc/ceilometer/ceilometer.conf',
+      lens => 'Puppet.lns',
+      incl => '/etc/ceilometer/ceilometer.conf',
+      changes => [
+        "set DEFAULT/pipeline_cfg_file /etc/ceilometer/pipeline.yaml",
+      ],
+      require => [
+        Package['openstack-ceilometer-common'],
+        File['pipeline.yaml'],
+      ],
+      notify => Service['openstack-ceilometer-compute'],
     }
 
     Package['openstack-ceilometer-compute'] ~>
