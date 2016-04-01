@@ -12,6 +12,9 @@ class eayunstack::upgrade (
   class { 'eayunstack::upgrade::glance':
     fuel_settings => $fuel_settings,
   }
+  class { 'eayunstack::upgrade::haproxy::haproxy':
+    fuel_settings => $fuel_settings,
+  }
   class { 'eayunstack::upgrade::heat':
     fuel_settings => $fuel_settings,
   }
