@@ -6,7 +6,8 @@ class eayunstack::upgrade::nova (
   $admin_password = $fuel_settings['cinder']['user_password']
   $admin_tenant_name = 'services'
   # reclaim interval is 15 days.
-  $reclaim_instance_interval = '1296000'
+  # Change: disable soft-delete until eayuncloud get prepared.
+  $reclaim_instance_interval = '0'
 
   $packages = { controller => [
                               'python-nova', 'openstack-nova-objectstore', 'openstack-nova-api',
