@@ -16,7 +16,7 @@ class eayunstack::upgrade::python-eventlet (
 
   } elsif $eayunstack_node_role == 'compute' {
 
-    Package['python-oslo-messaging'] ~>
+    Package['python-eventlet'] ~>
       Service[$::eayunstack::generic::openstack_services['compute']]
 
     # There is no service on ceph-osd to be restarted.
