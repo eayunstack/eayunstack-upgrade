@@ -1,5 +1,4 @@
 class eayunstack::upgrade::keystone (
-  $fuel_settings,
 ) {
 
   if $::eayunstack_node_role == 'controller' {

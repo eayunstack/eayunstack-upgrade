@@ -1,5 +1,4 @@
 class eayunstack::upgrade::heat (
-  $fuel_settings,
 ) {
 
   if $::eayunstack_node_role == 'controller' {

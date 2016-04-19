@@ -1,5 +1,4 @@
 class eayunstack::upgrade::glance (
-  $fuel_settings,
 ) {
 
   if $::eayunstack_node_role == 'controller' {
