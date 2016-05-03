@@ -1,6 +1,7 @@
 class eayunstack::upgrade::ceilometer::ceilometer (
   $fuel_settings,
 ) {
+
   $packages = { controller => [
                               'openstack-ceilometer-common', 'python-ceilometer',
                               'openstack-ceilometer-collector', 'openstack-ceilometer-alarm',
@@ -14,6 +15,12 @@ class eayunstack::upgrade::ceilometer::ceilometer (
   }
 
   if $eayunstack_node_role == 'controller' {
+
+    $mongo_password = $fuel_settings['ceilometer']['db_password']
+    $mongo = get_server_by_role($fuel_settings['nodes'], ['primary-mongo'])
+    $mongo_ip = $mongo['internal_address']
+    $mongodb_connection = get_mongodb_connection($mongo_ip, $mongo_password)
+
     package { $packages[controller]:
       ensure => latest,
     }
@@ -45,8 +52,8 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       changes => [
         "set DEFAULT/api_workers  $::processorcount",
         "set DEFAULT/debug False",
-        "set api/pecan_debug False",
         "set DEFAULT/pipeline_cfg_file /etc/ceilometer/pipeline.yaml",
+        "set api/pecan_debug False",
         "set event/definitions_cfg_file /etc/ceilometer/event_definitions.yaml",
         "set notification/store_events True",
       ],
@@ -55,10 +62,28 @@ class eayunstack::upgrade::ceilometer::ceilometer (
         File['pipeline.yaml', 'event_definitions.yaml'],
       ],
       notify => [
-        Service['openstack-ceilometer-notification'], Service['openstack-ceilometer-api'],
-        Service['httpd'], Service['openstack-ceilometer-central'],
+        Service['openstack-ceilometer-api'],
+        Service['openstack-ceilometer-central'],
+        Service['openstack-ceilometer-notification'],
+        Service['httpd'],
       ],
     }
+
+    augeas { 'ceilometer-database':
+      context => '/files/etc/ceilometer/ceilometer.conf',
+      lens => 'Puppet.lns',
+      incl => '/etc/ceilometer/ceilometer.conf',
+      changes => [
+        "set database/connection $mongodb_connection",
+      ],
+      require => Package['openstack-ceilometer-common'],
+      notify => [
+        Service['openstack-ceilometer-collector'],
+        Service['openstack-ceilometer-api'],
+        Service['httpd'],
+      ],
+    }
+
     $systemd_services = [
       'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-collector',
       'openstack-ceilometer-notification',
