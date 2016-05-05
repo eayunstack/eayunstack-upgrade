@@ -55,11 +55,11 @@ class eayunstack::upgrade::neutron::pptpvpn {
     }
     File['ip-up.local'] {
       path => '/etc/ppp/ip-up.local',
-      source => 'puppet:///modules/eayunstack/ip-up.local',
+      source => 'puppet:///modules/eayunstack/neutron/ip-up.local',
     }
     File['ip-down.local'] {
       path => '/etc/ppp/ip-down.local',
-      source => 'puppet:///modules/eayunstack/ip-down.local',
+      source => 'puppet:///modules/eayunstack/neutron/ip-down.local',
     }
 
     Package['openstack-neutron-ml2'] ->
