@@ -5,6 +5,7 @@ class eayunstack::upgrade::neutron (
   if $eayunstack_node_role == 'controller' {
 
     include eayunstack::upgrade::neutron::pptpvpn
+    include eayunstack::upgrade::neutron::eayunstack_1_0_1
 
     $packages = [
       'python-neutron', 'openstack-neutron', 'openstack-neutron-ml2',
