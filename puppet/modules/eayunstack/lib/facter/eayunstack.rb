@@ -14,3 +14,7 @@ if File.exist?(node_role_file)
     setcode { File.read(node_role_file).strip }
   end
 end
+
+Facter.add('nova_novncproxy_base_url') do
+  setcode { 'http://25.0.0.2:6080/vnc_auto.html' }
+end
