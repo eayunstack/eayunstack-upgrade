@@ -43,7 +43,6 @@ class eayunstack::upgrade::ceilometer (
       lens => 'Puppet.lns',
       incl => '/etc/ceilometer/ceilometer.conf',
       changes => [
-        "set DEFAULT/api_workers  $::processorcount",
         "set DEFAULT/pipeline_cfg_file /etc/ceilometer/pipeline.yaml",
         "set event/definitions_cfg_file /etc/ceilometer/event_definitions.yaml",
         "set notification/store_events True",
