@@ -7,7 +7,7 @@ class eayunstack::upgrade::neutron (
     $packages = [
       'python-neutron', 'openstack-neutron', 'openstack-neutron-ml2',
       'openstack-neutron-openvswitch', 'openstack-neutron-vpn-agent',
-      'openstack-neutron-metering-agent', 'pptpd', 'python-neutronclient',
+      'openstack-neutron-metering-agent', 'python-neutronclient',
     ]
     package { $packages:
       ensure => latest,
@@ -39,26 +39,6 @@ class eayunstack::upgrade::neutron (
       refreshonly => true,
       tries       => 10,
       try_sleep   => 20,
-    }
-
-    augeas { 'add-pptp-vpn-service-provider':
-      context => '/files/etc/neutron/neutron.conf',
-      lens => 'Puppet.lns',
-      incl => '/etc/neutron/neutron.conf',
-      changes => [
-        'set service_providers/service_provider[last()+1] VPN:pptp:neutron.services.vpn.service_drivers.pptp.PPTPVPNDriver'
-      ],
-      onlyif => 'match service_providers/service_provider[.="VPN:pptp:neutron.services.vpn.service_drivers.pptp.PPTPVPNDriver"] size < 1',
-    }
-
-    augeas { 'add-pptp-vpn-device-driver':
-      context => '/files/etc/neutron/l3_agent.ini',
-      lens => 'Puppet.lns',
-      incl => '/etc/neutron/l3_agent.ini',
-      changes => [
-        'set vpnagent/vpn_device_driver[last()+1] neutron.services.vpn.device_drivers.pptp.PPTPDriver'
-      ],
-      onlyif => 'match vpnagent/vpn_device_driver[.="neutron.services.vpn.device_drivers.pptp.PPTPDriver"] size < 1',
     }
 
     augeas { 'metering-agent':
@@ -120,21 +100,16 @@ class eayunstack::upgrade::neutron (
 
     Package['openstack-neutron-ml2'] {
       notify => [
-        Augeas['add-pptp-vpn-service-provider'],
         Exec['database-upgrade'],
         Service['neutron-server'],
       ],
     }
 
-    Augeas['add-pptp-vpn-service-provider'] ~> Service['neutron-server']
     Exec['database-upgrade'] ~> Service['neutron-server']
 
     Package['openstack-neutron-openvswitch'] ~>
       Service['neutron-openvswitch-agent']
 
-    Package['openstack-neutron-vpn-agent'] ->
-      Augeas['add-pptp-vpn-device-driver'] ~>
-        Service['neutron-l3-agent']
     Package['openstack-neutron-vpn-agent'] ~>
       File['replace-neutron-l3-agent'] ~>
         Service['neutron-l3-agent']
