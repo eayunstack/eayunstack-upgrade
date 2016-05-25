@@ -26,7 +26,7 @@ class eayunstack::upgrade::ceilometer (
       require => Package['openstack-ceilometer-common'],
       notify => [
         Service['openstack-ceilometer-notification'], Service['openstack-ceilometer-api'],
-        Service['httpd'], Service['openstack-ceilometer-central'],
+        Service['openstack-ceilometer-central'],
       ],
     }
     file { 'event_definitions.yaml':
