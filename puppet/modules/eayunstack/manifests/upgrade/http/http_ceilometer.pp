@@ -12,7 +12,7 @@ class eayunstack::upgrade::http::http_ceilometer(
     }
     file { 'ceilometer.wsgi':
       path => '/var/www/ceilometer/ceilometer.wsgi',
-      source => 'puppet:///modules/eayunstack/ceilometer.wsgi',
+      source => 'puppet:///modules/eayunstack/ceilometer/ceilometer.wsgi',
       require => File['/var/www/ceilometer/'],
     }
 

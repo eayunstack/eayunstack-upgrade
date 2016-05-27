@@ -28,7 +28,7 @@ class eayunstack::upgrade::ceilometer::ceilometer (
     file { 'pipeline.yaml':
       path => '/etc/ceilometer/pipeline.yaml',
       ensure => file,
-      source => 'puppet:///modules/eayunstack/pipeline.yaml',
+      source => 'puppet:///modules/eayunstack/ceilometer/pipeline.yaml',
       group => 'ceilometer',
       require => Package['openstack-ceilometer-common'],
       notify => [
@@ -39,7 +39,7 @@ class eayunstack::upgrade::ceilometer::ceilometer (
     file { 'event_definitions.yaml':
       path => '/etc/ceilometer/event_definitions.yaml',
       ensure => file,
-      source => 'puppet:///modules/eayunstack/event_definitions.yaml',
+      source => 'puppet:///modules/eayunstack/ceilometer/event_definitions.yaml',
       group => 'ceilometer',
       require => Package['openstack-ceilometer-common'],
       notify => Service['openstack-ceilometer-notification'],
@@ -145,7 +145,7 @@ class eayunstack::upgrade::ceilometer::ceilometer (
     file { 'pipeline.yaml':
       path => '/etc/ceilometer/pipeline.yaml',
       ensure => file,
-      source => 'puppet:///modules/eayunstack/pipeline.yaml',
+      source => 'puppet:///modules/eayunstack/ceilometer/pipeline.yaml',
       group => 'ceilometer',
       require => Package['openstack-ceilometer-common'],
       notify => Service['openstack-ceilometer-compute'],

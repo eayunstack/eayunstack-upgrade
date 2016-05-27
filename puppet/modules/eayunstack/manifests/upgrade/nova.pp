@@ -127,17 +127,28 @@ class eayunstack::upgrade::nova (
 
     }
 
+    augeas { 'set_novncproxy_base_url':
+      context => '/files/etc/nova/nova.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/nova/nova.conf',
+      changes => [
+        "set DEFAULT/novncproxy_base_url $nova_novncproxy_base_url",
+      ],
+    }
+
     Package['python-nova'] {
       notify => [
         Augeas['change_cinder_catalog_info'],
         Augeas['add_cinder_admin_info'],
         Augeas['set_reclaim_instance_interval'],
+        Augeas['set_novncproxy_base_url'],
       ],
     }
 
     Augeas['change_cinder_catalog_info'] ~> Service['openstack-nova-compute']
     Augeas['add_cinder_admin_info'] ~> Service['openstack-nova-compute']
     Augeas['set_reclaim_instance_interval'] ~> Service['openstack-nova-compute']
+    Augeas['set_novncproxy_base_url'] ~> Service['openstack-nova-compute']
 
   } elsif $eayunstack_node_role == 'ceph-osd' {
 
