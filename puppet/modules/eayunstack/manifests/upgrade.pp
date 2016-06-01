@@ -3,7 +3,7 @@ class eayunstack::upgrade (
 ) {
   include eayunstack::generic
 
-  class { 'eayunstack::upgrade::ceilometer':
+  class { 'eayunstack::upgrade::ceilometer::ceilometer':
     fuel_settings => $fuel_settings,
   }
   class { 'eayunstack::upgrade::ceph':
@@ -19,6 +19,9 @@ class eayunstack::upgrade (
     fuel_settings => $fuel_settings,
   }
   class { 'eayunstack::upgrade::heat':
+    fuel_settings => $fuel_settings,
+  }
+  class { 'eayunstack::upgrade::http::http_ceilometer':
     fuel_settings => $fuel_settings,
   }
   class { 'eayunstack::upgrade::keystone':

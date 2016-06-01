@@ -3,7 +3,7 @@ class eayunstack::generic {
   $openstack_services = {
     'controller' => [
       # Ceilometer
-      'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-api',
+      'openstack-ceilometer-alarm-notifier', 'httpd',
       'openstack-ceilometer-collector', 'openstack-ceilometer-notification',
       'openstack-ceilometer-central', 'openstack-ceilometer-alarm-evaluator',
       # Cinder
