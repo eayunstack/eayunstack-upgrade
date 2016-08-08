@@ -118,6 +118,16 @@ class eayunstack::upgrade::neutron (
       source => 'puppet:///modules/eayunstack/ip-down.local',
     }
 
+    file { 'replace-q-agent-cleanup':
+      path => '/usr/bin/q-agent-cleanup.py',
+      ensure => file,
+      backup => '.bak',
+      mode => '0755',
+      owner => 'root',
+      group => 'root',
+      source => 'puppet://modules/eayunstack/q-agent-cleanup.py',
+    }
+
     Package['openstack-neutron-ml2'] {
       notify => [
         Augeas['add-pptp-vpn-service-provider'],
