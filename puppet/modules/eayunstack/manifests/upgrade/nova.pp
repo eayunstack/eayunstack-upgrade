@@ -49,7 +49,7 @@ class eayunstack::upgrade::nova (
         "set cinder/admin_password ${admin_password}",
         "set cinder/admin_tenant_name ${admin_tenant_name}",
       ],
-      onlyif => "match cinder/admin_username[.=\"${admin_username}\"] size < 1",
+      onlyif  => "match cinder/admin_username[.=\"${admin_username}\"] size < 1",
     }
 
     augeas { 'set_reclaim_instance_interval':
@@ -59,7 +59,7 @@ class eayunstack::upgrade::nova (
       changes => [
         "set DEFAULT/reclaim_instance_interval ${reclaim_instance_interval}",
       ],
-      onlyif => "match DEFAULT/reclaim_instance_interval[.=\"${reclaim_instance_interval}\"] size < 1",
+      onlyif  => "match DEFAULT/reclaim_instance_interval[.=\"${reclaim_instance_interval}\"] size < 1",
 
     }
 
@@ -102,7 +102,7 @@ class eayunstack::upgrade::nova (
         "set cinder/admin_password ${admin_password}",
         "set cinder/admin_tenant_name ${admin_tenant_name}",
       ],
-      onlyif => "match cinder/admin_username[.=\"${admin_username}\"] size < 1",
+      onlyif  => "match cinder/admin_username[.=\"${admin_username}\"] size < 1",
     }
 
     augeas { 'change_cinder_catalog_info':
@@ -123,7 +123,7 @@ class eayunstack::upgrade::nova (
       changes => [
         "set DEFAULT/reclaim_instance_interval ${reclaim_instance_interval}",
       ],
-      onlyif => "match DEFAULT/reclaim_instance_interval[.=\"${reclaim_instance_interval}\"] size < 1",
+      onlyif  => "match DEFAULT/reclaim_instance_interval[.=\"${reclaim_instance_interval}\"] size < 1",
 
     }
 

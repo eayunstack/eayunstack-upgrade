@@ -26,11 +26,11 @@ class eayunstack::upgrade::neutron (
       'neutron-metadata-agent', 'neutron-lbaas-agent',
     ]
     service { $pcs_services:
-      ensure => running,
-      enable => true,
-      hasstatus => true,
+      ensure     => running,
+      enable     => true,
+      hasstatus  => true,
       hasrestart => false,
-      provider => 'pacemaker',
+      provider   => 'pacemaker',
     }
 
     exec { 'database-upgrade':
@@ -43,28 +43,28 @@ class eayunstack::upgrade::neutron (
 
     augeas { 'add-pptp-vpn-service-provider':
       context => '/files/etc/neutron/neutron.conf',
-      lens => 'Puppet.lns',
-      incl => '/etc/neutron/neutron.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/neutron/neutron.conf',
       changes => [
         'set service_providers/service_provider[last()+1] VPN:pptp:neutron.services.vpn.service_drivers.pptp.PPTPVPNDriver'
       ],
-      onlyif => 'match service_providers/service_provider[.="VPN:pptp:neutron.services.vpn.service_drivers.pptp.PPTPVPNDriver"] size < 1',
+      onlyif  => 'match service_providers/service_provider[.="VPN:pptp:neutron.services.vpn.service_drivers.pptp.PPTPVPNDriver"] size < 1',
     }
 
     augeas { 'add-pptp-vpn-device-driver':
       context => '/files/etc/neutron/l3_agent.ini',
-      lens => 'Puppet.lns',
-      incl => '/etc/neutron/l3_agent.ini',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/neutron/l3_agent.ini',
       changes => [
         'set vpnagent/vpn_device_driver[last()+1] neutron.services.vpn.device_drivers.pptp.PPTPDriver'
       ],
-      onlyif => 'match vpnagent/vpn_device_driver[.="neutron.services.vpn.device_drivers.pptp.PPTPDriver"] size < 1',
+      onlyif  => 'match vpnagent/vpn_device_driver[.="neutron.services.vpn.device_drivers.pptp.PPTPDriver"] size < 1',
     }
 
     augeas { 'metering-agent':
       context => '/files/etc/neutron/metering_agent.ini',
-      lens => 'Puppet.lns',
-      incl => '/etc/neutron/metering_agent.ini',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/neutron/metering_agent.ini',
       changes => [
           'set DEFAULT/debug True',
           'set DEFAULT/driver neutron.services.metering.drivers.iptables.iptables_driver.IptablesMeteringDriver',
@@ -74,7 +74,7 @@ class eayunstack::upgrade::neutron (
           'set DEFAULT/use_namespaces True',
         ],
       require => Package['openstack-neutron-metering-agent'],
-      notify => Service['neutron-metering-agent'],
+      notify  => Service['neutron-metering-agent'],
     }
 
     file { 'replace-neutron-l3-agent':
@@ -89,25 +89,25 @@ class eayunstack::upgrade::neutron (
 
     file { 'ppp-dir':
       ensure => directory,
-      path => '/etc/ppp',
-      owner => 'neutron',
-      group => 'root',
+      path   => '/etc/ppp',
+      owner  => 'neutron',
+      group  => 'root',
     }
 
     file { 'ppp-chap-secrets':
       ensure => file,
-      path => '/etc/ppp/chap-secrets',
-      mode => '0644',
-      owner => 'neutron',
-      group => 'neutron',
+      path   => '/etc/ppp/chap-secrets',
+      mode   => '0644',
+      owner  => 'neutron',
+      group  => 'neutron',
     }
 
     $ip_local_files = ['ip-up.local', 'ip-down.local']
     file { $ip_local_files:
       ensure => file,
-      mode => '0755',
-      owner => 'root',
-      group => 'root',
+      mode   => '0755',
+      owner  => 'root',
+      group  => 'root',
     }
     File['ip-up.local'] {
       path => '/etc/ppp/ip-up.local',
@@ -120,11 +120,11 @@ class eayunstack::upgrade::neutron (
 
     file { 'replace-q-agent-cleanup':
       ensure => file,
-      path => '/usr/bin/q-agent-cleanup.py',
+      path   => '/usr/bin/q-agent-cleanup.py',
       backup => '.bak',
-      mode => '0755',
-      owner => 'root',
-      group => 'root',
+      mode   => '0755',
+      owner  => 'root',
+      group  => 'root',
       source => 'puppet:///modules/eayunstack/q-agent-cleanup.py',
     }
 
