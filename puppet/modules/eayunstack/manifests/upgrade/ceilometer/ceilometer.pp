@@ -51,11 +51,11 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       incl => '/etc/ceilometer/ceilometer.conf',
       changes => [
         "set DEFAULT/api_workers  $::processorcount",
-        "set DEFAULT/debug False",
-        "set DEFAULT/pipeline_cfg_file /etc/ceilometer/pipeline.yaml",
-        "set api/pecan_debug False",
-        "set event/definitions_cfg_file /etc/ceilometer/event_definitions.yaml",
-        "set notification/store_events True",
+        'set DEFAULT/debug False',
+        'set DEFAULT/pipeline_cfg_file /etc/ceilometer/pipeline.yaml',
+        'set api/pecan_debug False',
+        'set event/definitions_cfg_file /etc/ceilometer/event_definitions.yaml',
+        'set notification/store_events True',
       ],
       require => [
         Package['openstack-ceilometer-common'],
@@ -156,7 +156,7 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       lens => 'Puppet.lns',
       incl => '/etc/ceilometer/ceilometer.conf',
       changes => [
-        "set DEFAULT/pipeline_cfg_file /etc/ceilometer/pipeline.yaml",
+        'set DEFAULT/pipeline_cfg_file /etc/ceilometer/pipeline.yaml',
       ],
       require => [
         Package['openstack-ceilometer-common'],

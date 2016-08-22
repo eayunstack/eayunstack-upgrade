@@ -17,7 +17,7 @@ class eayunstack::upgrade::glance (
       lens => 'Puppet.lns',
       incl => '/etc/glance/glance-api.conf',
       changes => [
-        "set DEFAULT/notification_driver messaging",
+        'set DEFAULT/notification_driver messaging',
       ],
       require => Package['openstack-glance'],
       notify => Service['openstack-glance-api'],
@@ -28,7 +28,7 @@ class eayunstack::upgrade::glance (
       lens => 'Puppet.lns',
       incl => '/etc/glance/glance-registry.conf',
       changes => [
-        "set DEFAULT/notification_driver messaging",
+        'set DEFAULT/notification_driver messaging',
       ],
       require => Package['openstack-glance'],
       notify => Service['openstack-glance-registry'],

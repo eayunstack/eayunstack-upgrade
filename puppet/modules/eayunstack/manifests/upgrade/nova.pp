@@ -110,8 +110,8 @@ class eayunstack::upgrade::nova (
       lens    => 'Puppet.lns',
       incl    => '/etc/nova/nova.conf',
       changes => [
-        "rm DEFAULT/cinder_catalog_info",
-        "set cinder/catalog_info volumev2:cinderv2:internalURL",
+        'rm DEFAULT/cinder_catalog_info',
+        'set cinder/catalog_info volumev2:cinderv2:internalURL',
       ],
       onlyif  => 'match cinder/catalog_info[.="volumev2:cinderv2:internalURL"] size < 1',
     }

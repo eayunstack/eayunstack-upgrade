@@ -78,13 +78,13 @@ class eayunstack::upgrade::neutron (
     }
 
     file { 'replace-neutron-l3-agent':
-      path   => "/usr/bin/neutron-l3-agent",
+      path   => '/usr/bin/neutron-l3-agent',
       ensure => file,
       backup => '.bak',
       mode   => '0755',
       owner  => 'root',
       group  => 'root',
-      source => "/usr/bin/neutron-vpn-agent"
+      source => '/usr/bin/neutron-vpn-agent',
     }
 
     file { 'ppp-dir':
