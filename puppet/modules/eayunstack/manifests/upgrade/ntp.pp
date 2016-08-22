@@ -3,8 +3,8 @@ class eayunstack::upgrade::ntp (
 ) {
 
   service { 'ntpd':
-    enable => true,
     ensure => 'running',
+    enable => true,
   }
 
   package { 'ntp':

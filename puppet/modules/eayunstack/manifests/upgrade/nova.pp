@@ -20,7 +20,7 @@ class eayunstack::upgrade::nova (
                               ],
                 ceph       => ['python-novaclient'],
   }
- 
+
   $services = { controller => [
                               'openstack-nova-api', 'openstack-nova-cert', 'openstack-nova-conductor',
                               'openstack-nova-consoleauth', 'openstack-nova-novncproxy',
@@ -49,7 +49,7 @@ class eayunstack::upgrade::nova (
         "set cinder/admin_password ${admin_password}",
         "set cinder/admin_tenant_name ${admin_tenant_name}",
       ],
-      onlyif => "match cinder/admin_username[.=\"${admin_username}\"] size < 1",
+      onlyif  => "match cinder/admin_username[.=\"${admin_username}\"] size < 1",
     }
 
     augeas { 'set_reclaim_instance_interval':
@@ -59,7 +59,7 @@ class eayunstack::upgrade::nova (
       changes => [
         "set DEFAULT/reclaim_instance_interval ${reclaim_instance_interval}",
       ],
-      onlyif => "match DEFAULT/reclaim_instance_interval[.=\"${reclaim_instance_interval}\"] size < 1",
+      onlyif  => "match DEFAULT/reclaim_instance_interval[.=\"${reclaim_instance_interval}\"] size < 1",
 
     }
 
@@ -102,7 +102,7 @@ class eayunstack::upgrade::nova (
         "set cinder/admin_password ${admin_password}",
         "set cinder/admin_tenant_name ${admin_tenant_name}",
       ],
-      onlyif => "match cinder/admin_username[.=\"${admin_username}\"] size < 1",
+      onlyif  => "match cinder/admin_username[.=\"${admin_username}\"] size < 1",
     }
 
     augeas { 'change_cinder_catalog_info':
@@ -110,8 +110,8 @@ class eayunstack::upgrade::nova (
       lens    => 'Puppet.lns',
       incl    => '/etc/nova/nova.conf',
       changes => [
-        "rm DEFAULT/cinder_catalog_info",
-        "set cinder/catalog_info volumev2:cinderv2:internalURL",
+        'rm DEFAULT/cinder_catalog_info',
+        'set cinder/catalog_info volumev2:cinderv2:internalURL',
       ],
       onlyif  => 'match cinder/catalog_info[.="volumev2:cinderv2:internalURL"] size < 1',
     }
@@ -123,7 +123,7 @@ class eayunstack::upgrade::nova (
       changes => [
         "set DEFAULT/reclaim_instance_interval ${reclaim_instance_interval}",
       ],
-      onlyif => "match DEFAULT/reclaim_instance_interval[.=\"${reclaim_instance_interval}\"] size < 1",
+      onlyif  => "match DEFAULT/reclaim_instance_interval[.=\"${reclaim_instance_interval}\"] size < 1",
 
     }
 

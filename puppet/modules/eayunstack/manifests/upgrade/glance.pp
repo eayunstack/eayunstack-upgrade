@@ -14,24 +14,24 @@ class eayunstack::upgrade::glance (
 
     augeas { 'glance-api':
       context => '/files/etc/glance/glance-api.conf',
-      lens => 'Puppet.lns',
-      incl => '/etc/glance/glance-api.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/glance/glance-api.conf',
       changes => [
-        "set DEFAULT/notification_driver messaging",
+        'set DEFAULT/notification_driver messaging',
       ],
       require => Package['openstack-glance'],
-      notify => Service['openstack-glance-api'],
+      notify  => Service['openstack-glance-api'],
     }
 
     augeas { 'glance-registry':
       context => '/files/etc/glance/glance-registry.conf',
-      lens => 'Puppet.lns',
-      incl => '/etc/glance/glance-registry.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/glance/glance-registry.conf',
       changes => [
-        "set DEFAULT/notification_driver messaging",
+        'set DEFAULT/notification_driver messaging',
       ],
       require => Package['openstack-glance'],
-      notify => Service['openstack-glance-registry'],
+      notify  => Service['openstack-glance-registry'],
     }
     $systemd_services = [
       'openstack-glance-api', 'openstack-glance-registry',
