@@ -50,7 +50,7 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       lens => 'Puppet.lns',
       incl => '/etc/ceilometer/ceilometer.conf',
       changes => [
-        "set DEFAULT/api_workers  $::processorcount",
+        "set DEFAULT/api_workers  ${::processorcount}",
         'set DEFAULT/debug False',
         'set DEFAULT/pipeline_cfg_file /etc/ceilometer/pipeline.yaml',
         'set api/pecan_debug False',
@@ -74,7 +74,7 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       lens => 'Puppet.lns',
       incl => '/etc/ceilometer/ceilometer.conf',
       changes => [
-        "set database/connection $mongodb_connection",
+        "set database/connection ${mongodb_connection}",
       ],
       require => Package['openstack-ceilometer-common'],
       notify => [
