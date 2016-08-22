@@ -125,7 +125,7 @@ class eayunstack::upgrade::neutron (
       mode => '0755',
       owner => 'root',
       group => 'root',
-      source => 'puppet://modules/eayunstack/q-agent-cleanup.py',
+      source => 'puppet:///modules/eayunstack/q-agent-cleanup.py',
     }
 
     Package['openstack-neutron-ml2'] {
