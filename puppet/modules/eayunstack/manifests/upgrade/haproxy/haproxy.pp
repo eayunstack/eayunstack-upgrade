@@ -18,14 +18,14 @@ class eayunstack::upgrade::haproxy::haproxy (
     }
 
     file { 'haproxy_directory':
-      path => '/etc/haproxy/conf.d',
       ensure => directory,
+      path => '/etc/haproxy/conf.d',
       require => Package['haproxy'],
     }
 
     file { 'haproxy_ceilometer':
-      path => '/etc/haproxy/conf.d/140-ceilometer.cfg',
       ensure => file,
+      path => '/etc/haproxy/conf.d/140-ceilometer.cfg',
       content => template('eayunstack/haproxy_ceilometer.erb'),
       require => File['haproxy_directory'],
       notify => Service['haproxy'],

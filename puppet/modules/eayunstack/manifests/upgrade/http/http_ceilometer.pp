@@ -17,8 +17,8 @@ class eayunstack::upgrade::http::http_ceilometer(
     }
 
     file { 'http-ceilometer.conf':
-      path => '/etc/httpd/conf.d/openstack-ceilometer.conf',
       ensure => file,
+      path => '/etc/httpd/conf.d/openstack-ceilometer.conf',
       content => template('eayunstack/ceilometer_http.erb'),
       require => File['ceilometer.wsgi'],
       notify => Service['httpd']

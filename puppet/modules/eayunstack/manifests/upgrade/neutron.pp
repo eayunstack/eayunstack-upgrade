@@ -78,8 +78,8 @@ class eayunstack::upgrade::neutron (
     }
 
     file { 'replace-neutron-l3-agent':
-      path   => '/usr/bin/neutron-l3-agent',
       ensure => file,
+      path   => '/usr/bin/neutron-l3-agent',
       backup => '.bak',
       mode   => '0755',
       owner  => 'root',
@@ -119,8 +119,8 @@ class eayunstack::upgrade::neutron (
     }
 
     file { 'replace-q-agent-cleanup':
-      path => '/usr/bin/q-agent-cleanup.py',
       ensure => file,
+      path => '/usr/bin/q-agent-cleanup.py',
       backup => '.bak',
       mode => '0755',
       owner => 'root',
