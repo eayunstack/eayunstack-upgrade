@@ -20,7 +20,7 @@ class eayunstack::upgrade::nova (
                               ],
                 ceph       => ['python-novaclient'],
   }
- 
+
   $services = { controller => [
                               'openstack-nova-api', 'openstack-nova-cert', 'openstack-nova-conductor',
                               'openstack-nova-consoleauth', 'openstack-nova-novncproxy',
