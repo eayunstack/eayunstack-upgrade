@@ -1,4 +1,4 @@
-class eayunstack::upgrade::python-eventlet (
+class eayunstack::upgrade::python_eventlet (
   $fuel_settings,
 ) {
 

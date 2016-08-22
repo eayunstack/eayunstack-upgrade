@@ -10,25 +10,25 @@ class eayunstack::upgrade::haproxy::haproxy (
 
     $pcs_services = ['haproxy']
     service { $pcs_services:
-      ensure => running,
-      enable => true,
-      hasstatus => true,
+      ensure     => running,
+      enable     => true,
+      hasstatus  => true,
       hasrestart => false,
-      provider => 'pacemaker',
+      provider   => 'pacemaker',
     }
 
     file { 'haproxy_directory':
-      path => '/etc/haproxy/conf.d',
-      ensure => directory,
+      ensure  => directory,
+      path    => '/etc/haproxy/conf.d',
       require => Package['haproxy'],
     }
 
     file { 'haproxy_ceilometer':
-      path => '/etc/haproxy/conf.d/140-ceilometer.cfg',
-      ensure => file,
+      ensure  => file,
+      path    => '/etc/haproxy/conf.d/140-ceilometer.cfg',
       content => template('eayunstack/haproxy_ceilometer.erb'),
       require => File['haproxy_directory'],
-      notify => Service['haproxy'],
+      notify  => Service['haproxy'],
     }
 
     Package['haproxy'] ~>

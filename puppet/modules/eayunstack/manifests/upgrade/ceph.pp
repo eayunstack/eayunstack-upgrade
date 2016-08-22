@@ -7,10 +7,10 @@ class eayunstack::upgrade::ceph (
     # modify user 'compute''s access permission from 'rx' to 'rwx' for images pool
     $ceph_osd_caps = modify_ceph_auth_info('client.compute', 'osd', 'allow rx pool=images', 'allow rwx pool=images')
     exec {'reset-cephx-acl-for-user-compute':
-      path => '/usr/bin/',
-      command => "ceph auth caps client.compute mon '${ceph_mon_caps}' osd '${ceph_osd_caps}'",
-      tries       => 10,
-      try_sleep   => 20,
+      path      => '/usr/bin/',
+      command   => "ceph auth caps client.compute mon '${ceph_mon_caps}' osd '${ceph_osd_caps}'",
+      tries     => 10,
+      try_sleep => 20,
     }
   }
 }
