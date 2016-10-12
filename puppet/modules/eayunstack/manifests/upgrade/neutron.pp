@@ -108,6 +108,16 @@ class eayunstack::upgrade::neutron (
       source => 'puppet:///modules/eayunstack/q-agent-cleanup.py',
     }
 
+    file { 'replace-ocf-neutron-agent-lbaas':
+      ensure => file,
+      path   => '/usr/lib/ocf/resource.d/eayun/neutron-agent-lbaas',
+      backup => '.bak',
+      mode   => '0755',
+      owner  => 'root',
+      group  => 'root',
+      source => 'puppet:///modules/eayunstack/neutron-agent-lbaas',
+    }
+
     Package['openstack-neutron-ml2'] {
       notify => [
         Exec['database-upgrade'],
