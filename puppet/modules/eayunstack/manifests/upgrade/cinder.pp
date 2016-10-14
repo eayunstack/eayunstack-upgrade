@@ -14,6 +14,7 @@ class eayunstack::upgrade::cinder (
       'openstack-cinder-api',
       'openstack-cinder-scheduler',
       'openstack-cinder-volume',
+      'openstack-cinder-backup',
     ]
     service { $cinder_services:
       ensure => running,
@@ -35,6 +36,7 @@ class eayunstack::upgrade::cinder (
         Service['openstack-cinder-api'],
         Service['openstack-cinder-scheduler'],
         Service['openstack-cinder-volume'],
+        Service['openstack-cinder-backup'],
       ]
     }
 
@@ -43,6 +45,7 @@ class eayunstack::upgrade::cinder (
         Service['openstack-cinder-api'],
         Service['openstack-cinder-scheduler'],
         Service['openstack-cinder-volume'],
+        Service['openstack-cinder-backup'],
       ]
     }
 
@@ -50,6 +53,7 @@ class eayunstack::upgrade::cinder (
       before => [
         Service['openstack-cinder-scheduler'],
         Service['openstack-cinder-volume'],
+        Service['openstack-cinder-backup'],
       ]
     }
   } else {
