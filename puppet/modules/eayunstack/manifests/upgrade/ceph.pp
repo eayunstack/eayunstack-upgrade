@@ -1,6 +1,22 @@
 class eayunstack::upgrade::ceph (
   $fuel_settings,
 ) {
+  $packages = [
+    'ceph', 'ceph-common', 'ceph-deploy', 'libcephfs1', 'librados2',
+    'librbd1', 'python-ceph-compat', 'python-cephfs', 'python-rados',
+    'python-rbd',
+  ]
+
+  $lib_packages = [
+    'librados2', 'librbd1', 'python-rados', 'python-rbd'
+  ]
+
+  if $eayunstack_node_role =~ /controller|ceph-osd|compute/ {
+    package { $packages:
+      ensure => latest,
+    }
+  }
+
   if $eayunstack_node_role == 'controller' {
     # just get current mon acl, without any modification
     $ceph_mon_caps = get_ceph_auth_info('client.compute', 'mon')
@@ -12,5 +28,12 @@ class eayunstack::upgrade::ceph (
       tries     => 10,
       try_sleep => 20,
     }
+
+    # Ceph packages upgrade will affect these services
+    $affected_services = [
+      'openstack-cinder-volume',
+      'openstack-cinder-backup',
+    ]
+    Package[$lib_packages] ~> Service[$affected_services]
   }
 }
