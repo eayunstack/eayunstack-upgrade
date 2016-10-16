@@ -128,16 +128,6 @@ class eayunstack::upgrade::neutron (
       source => 'puppet:///modules/eayunstack/q-agent-cleanup.py',
     }
 
-    file { 'replace-ocf-neutron-agent-lbaas':
-      path => '/usr/lib/ocf/resource.d/eayun/neutron-agent-lbaas',
-      ensure => file,
-      backup => '.bak',
-      mode => '0755',
-      owner => 'root',
-      group => 'root',
-      source => 'puppet://modules/eayunstack/neutron-agent-lbaas',
-    }
-
     Package['openstack-neutron-ml2'] {
       notify => [
         Augeas['add-pptp-vpn-service-provider'],
