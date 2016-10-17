@@ -68,6 +68,12 @@ class eayunstack::upgrade::auto_evacuate::auto_evacuate (
         enable    => true,
         subscribe => Augeas['evacuate_config_file'],
       }
+
+      firewall { '830 consul port':
+        dport  => [8300, 8301, 8302, 8400, 8500],
+        proto  => 'tcp',
+        action => 'accept',
+      }
     }
   }
 }
