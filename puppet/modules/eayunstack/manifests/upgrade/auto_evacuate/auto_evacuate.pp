@@ -66,7 +66,7 @@ class eayunstack::upgrade::auto_evacuate::auto_evacuate (
       service { 'eayunstack-auto-evacuate':
         ensure    => running,
         enable    => true,
-        subscribe => File['evacuate_config_file'],
+        subscribe => Augeas['evacuate_config_file'],
       }
     }
   }
