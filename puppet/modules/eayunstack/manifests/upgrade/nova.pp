@@ -5,8 +5,9 @@ class eayunstack::upgrade::nova (
   $admin_username = 'cinder'
   $admin_password = $fuel_settings['cinder']['user_password']
   $admin_tenant_name = 'services'
-  # reclaim interval is 15 days.
-  $reclaim_instance_interval = '1296000'
+  # reclaim interval is 10 days.
+  $reclaim_instance_interval = '864000'
+  $novnc_https_url = "https://${fuel_settings['public_vip']}:6080/vnc_auto.html"
 
   $packages = { controller => [
                               'python-nova', 'openstack-nova-objectstore', 'openstack-nova-api',
@@ -59,8 +60,6 @@ class eayunstack::upgrade::nova (
       changes => [
         "set DEFAULT/reclaim_instance_interval ${reclaim_instance_interval}",
       ],
-      onlyif  => "match DEFAULT/reclaim_instance_interval[.=\"${reclaim_instance_interval}\"] size < 1",
-
     }
 
     Package['python-nova'] {
@@ -123,8 +122,6 @@ class eayunstack::upgrade::nova (
       changes => [
         "set DEFAULT/reclaim_instance_interval ${reclaim_instance_interval}",
       ],
-      onlyif  => "match DEFAULT/reclaim_instance_interval[.=\"${reclaim_instance_interval}\"] size < 1",
-
     }
 
     Package['python-nova'] {
@@ -135,9 +132,19 @@ class eayunstack::upgrade::nova (
       ],
     }
 
+    augeas { 'set_novnc_https':
+      context => '/files/etc/nova/nova.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/nova/nova.conf',
+      changes => [
+        "set DEFAULT/novncproxy_base_url ${novnc_https_url}",
+      ],
+    }
+
     Augeas['change_cinder_catalog_info'] ~> Service['openstack-nova-compute']
     Augeas['add_cinder_admin_info'] ~> Service['openstack-nova-compute']
     Augeas['set_reclaim_instance_interval'] ~> Service['openstack-nova-compute']
+    Augeas['set_novnc_https'] ~> Service['openstack-nova-compute']
 
   } elsif $eayunstack_node_role == 'ceph-osd' {
 
