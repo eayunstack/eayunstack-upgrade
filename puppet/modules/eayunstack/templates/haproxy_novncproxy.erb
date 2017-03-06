@@ -1,0 +1,15 @@
+<%
+loaded_data = YAML.load(ERB.new(File.read("/etc/astute.yaml")).result)
+management_vip = loaded_data['management_vip']
+public_vip = loaded_data['public_vip']
+node = loaded_data['nodes']
+%>
+listen nova-novncproxy
+  bind <%= public_vip %>:6080 ssl crt /etc/nova/ssl/ca.pem
+  balance  roundrobin
+  option  httplog
+  <%- node.each do |node| -%>
+  <%- if node['role'] == 'controller' or node['role'] == 'primary-controller' -%>
+  server <%= node['name'] %> <%= node['internal_address'] %>:6080 check
+  <%- end -%>
+  <%- end -%>
