@@ -1,6 +1,12 @@
 class eayunstack::upgrade::cinder (
   $fuel_settings,
 ) {
+
+  $admin_username = 'nova'
+  $admin_password = $fuel_settings['nova']['user_password']
+  $admin_tenant_name = 'services'
+  $admin_auth_url = "http://${fuel_settings['management_vip']}:35357/v2.0"
+
   if $eayunstack_node_role == 'controller' {
 
     $cinder_packages = [
@@ -21,6 +27,18 @@ class eayunstack::upgrade::cinder (
       enable => true,
     }
 
+    augeas { 'add-nova-admin-info':
+      context => '/files/etc/cinder/cinder.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/cinder/cinder.conf',
+      changes => [
+        "set DEFAULT/os_privileged_user_name ${admin_username}",
+        "set DEFAULT/os_privileged_user_password ${admin_password}",
+        "set DEFAULT/os_privileged_user_tenant ${admin_tenant_name}",
+        "set DEFAULT/os_privileged_user_auth_url ${admin_auth_url}",
+      ],
+    }
+
     exec {'cinder-db-sync':
       command     => 'cinder-manage db sync',
       path        => '/usr/bin',
@@ -33,6 +51,7 @@ class eayunstack::upgrade::cinder (
     Package['openstack-cinder'] {
       notify => [
         Exec['cinder-db-sync'],
+        Augeas['add-nova-admin-info'],
         Service['openstack-cinder-api'],
         Service['openstack-cinder-scheduler'],
         Service['openstack-cinder-volume'],
@@ -41,6 +60,15 @@ class eayunstack::upgrade::cinder (
     }
 
     Exec['cinder-db-sync'] {
+      notify => [
+        Service['openstack-cinder-api'],
+        Service['openstack-cinder-scheduler'],
+        Service['openstack-cinder-volume'],
+        Service['openstack-cinder-backup'],
+      ]
+    }
+
+    Augeas['add-nova-admin-info'] {
       notify => [
         Service['openstack-cinder-api'],
         Service['openstack-cinder-scheduler'],
