@@ -131,9 +131,10 @@ class NeutronCleaner(object):
                             endpoint=a_url,
                         )
                         service_tenant = ks.tenants.find(name='services')
-                        auth_url = ks.endpoints.find(
+                        # get first vaild auth url
+                        auth_url = ks.endpoints.findall(
                                         service_id=ks.services.find(type='identity').id
-                                   ).internalurl
+                                   )[0].internalurl
                         # find and re-create temporary rescheduling-admin user with random password
                         try:
                             user = ks.users.find(username=TMP_USER_NAME)
