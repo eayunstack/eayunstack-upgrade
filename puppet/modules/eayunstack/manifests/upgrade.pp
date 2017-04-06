@@ -15,6 +15,9 @@ class eayunstack::upgrade (
   class { 'eayunstack::upgrade::cinder':
     fuel_settings => $fuel_settings,
   }
+  class { 'eayunstack::upgrade::consul::consul':
+    fuel_settings => $fuel_settings,
+  }
   class { 'eayunstack::upgrade::glance':
     fuel_settings => $fuel_settings,
   }
