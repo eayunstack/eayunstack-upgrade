@@ -48,6 +48,13 @@ sources:
           - "memory"
       sinks:
           - meter_sink
+    - name: es_network_source
+      interval: 60
+      meters:
+           - "network.es.port.*"
+           - "network.services.es.*"
+      sinks:
+          - meter_sink
 sinks:
     - name: meter_sink
       transformers:
