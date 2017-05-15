@@ -219,12 +219,27 @@ class eayunstack::upgrade::neutron (
       enable => true,
     }
 
+    augeas { 'set-openflow-ew-dvr':
+      context => '/files/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini',
+      changes => [
+        'set ovs/openflow_ew_dvr True'
+      ],
+    }
+
     Package['openstack-neutron-openvswitch'] ~>
-      Service['neutron-openvswitch-agent'] ->
-        Service['neutron-qos-agent']
+      Augeas['set-openflow-ew-dvr'] ~>
+        Service['neutron-openvswitch-agent']
+
+    Package['openstack-neutron'] ~>
+      Service['neutron-openvswitch-agent']
 
     Package['openstack-neutron'] ~>
       Service['neutron-qos-agent']
+
+    Service['neutron-openvswitch-agent'] ->
+        Service['neutron-qos-agent']
 
   }
 
