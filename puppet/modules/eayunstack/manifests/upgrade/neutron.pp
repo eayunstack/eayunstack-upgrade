@@ -67,7 +67,7 @@ class eayunstack::upgrade::neutron (
       incl    => '/etc/neutron/metering_agent.ini',
       changes => [
           'set DEFAULT/debug True',
-          'set DEFAULT/driver neutron.services.metering.drivers.iptables.iptables_driver.IptablesMeteringDriver',
+          'set DEFAULT/driver neutron.services.metering.drivers.iptables.es_iptables_driver.EsIptablesMeteringDriver',
           'set DEFAULT/measure_interval 30',
           'set DEFAULT/report_interval 50',
           'set DEFAULT/interface_driver neutron.agent.linux.interface.OVSInterfaceDriver',
