@@ -77,6 +77,15 @@ class eayunstack::upgrade::neutron (
       notify  => Service['neutron-metering-agent'],
     }
 
+    augeas { 'set-use-es-fip-mechanism':
+      context => '/files/etc/neutron/l3_agent.ini',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/neutron/l3_agent.ini',
+      changes => [
+        'set DEFAULT/use_es_floatingip_mechanism True'
+      ],
+    }
+
     file { 'replace-neutron-l3-agent':
       ensure => file,
       path   => '/usr/bin/neutron-l3-agent',
@@ -159,6 +168,9 @@ class eayunstack::upgrade::neutron (
       File['replace-neutron-l3-agent'] ~>
         Service['neutron-l3-agent']
     Package['openstack-neutron-vpn-agent'] ~> Service['neutron-l3-agent']
+    Package['openstack-neutron'] ~>
+      Augeas['set-use-es-fip-mechanism'] ~>
+        Service['neutron-l3-agent']
 
     Package['openstack-neutron-metering-agent'] ~>
       Service['neutron-metering-agent']
