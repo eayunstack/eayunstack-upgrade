@@ -4,6 +4,8 @@ class eayunstack::upgrade::neutron (
 
   if $eayunstack_node_role == 'controller' {
 
+    # Packages
+
     $packages = [
       'python-neutron', 'openstack-neutron', 'openstack-neutron-ml2',
       'openstack-neutron-openvswitch', 'openstack-neutron-vpn-agent',
@@ -12,6 +14,8 @@ class eayunstack::upgrade::neutron (
     package { $packages:
       ensure => latest,
     }
+
+    # Services
 
     $systemd_services = [
       'neutron-server', 'neutron-qos-agent', 'neutron-metering-agent',
@@ -33,6 +37,8 @@ class eayunstack::upgrade::neutron (
       provider   => 'pacemaker',
     }
 
+    # Executions
+
     exec { 'database-upgrade':
       command     => 'neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugin.ini upgrade head',
       path        => '/usr/bin',
@@ -40,6 +46,8 @@ class eayunstack::upgrade::neutron (
       tries       => 10,
       try_sleep   => 20,
     }
+
+    # Augeases
 
     augeas { 'add-pptp-vpn-service-provider':
       context => '/files/etc/neutron/neutron.conf',
@@ -94,6 +102,8 @@ class eayunstack::upgrade::neutron (
         'set securitygroup/enable_es_port_metering True'
       ],
     }
+
+    # Files
 
     file { 'replace-neutron-l3-agent':
       ensure => file,
@@ -156,18 +166,28 @@ class eayunstack::upgrade::neutron (
       source => 'puppet:///modules/eayunstack/neutron-agent-lbaas',
     }
 
+    # Ordering & Relationship
+
+    # Generic & Neutron server
     Package['openstack-neutron-ml2'] {
       notify => [
-        Augeas['add-pptp-vpn-service-provider'],
         Exec['database-upgrade'],
         Service['neutron-server'],
       ],
+      before => [
+        Augeas['add-pptp-vpn-service-provider'],
+      ],
     }
 
-    Augeas['add-pptp-vpn-service-provider'] ~> Service['neutron-server']
-    Exec['database-upgrade'] ~> Service['neutron-server']
+    Service['neutron-server'] {
+      subscribe => [
+        Exec['database-upgrade'],
+        Augeas['add-pptp-vpn-service-provider'],
+      ],
+    }
 
-    Package['openstack-neutron-openvswitch'] ~>
+    # OpenvSwitch agent
+    Package['openstack-neutron-openvswitch'] ->
       Augeas['set-es-port-metering']
 
     Service['neutron-openvswitch-agent'] {
@@ -177,20 +197,31 @@ class eayunstack::upgrade::neutron (
       ],
     }
 
-    Package['openstack-neutron-vpn-agent'] ->
-      Augeas['add-pptp-vpn-device-driver'] ~>
-        Service['neutron-l3-agent']
-    Package['openstack-neutron-vpn-agent'] ~>
-      File['replace-neutron-l3-agent'] ~>
-        Service['neutron-l3-agent']
-    Package['openstack-neutron-vpn-agent'] ~> Service['neutron-l3-agent']
-    Package['openstack-neutron'] ~>
-      Augeas['set-use-es-fip-mechanism'] ~>
-        Service['neutron-l3-agent']
+    # L3/VPN agent
+    Package['openstack-neutron-vpn-agent'] {
+      notify => [
+        Service['neutron-l3-agent'],
+      ],
+      before => [
+        File['replace-neutron-l3-agent'],
+        Augeas['add-pptp-vpn-device-driver'],
+        Augeas['set-use-es-fip-mechanism'],
+      ],
+    }
 
+    Service['neutron-l3-agent'] {
+      subscribe => [
+        File['replace-neutron-l3-agent'],
+        Augeas['add-pptp-vpn-device-driver'],
+        Augeas['set-use-es-fip-mechanism'],
+      ],
+    }
+
+    # Metering agent
     Package['openstack-neutron-metering-agent'] ~>
       Service['neutron-metering-agent']
 
+    # Service dependencies
     Package['openstack-neutron'] {
       notify => [
         Service['neutron-dhcp-agent'], Service['neutron-metadata-agent'],
@@ -219,6 +250,8 @@ class eayunstack::upgrade::neutron (
 
   } elsif $eayunstack_node_role == 'compute' {
 
+    # Packages
+
     $packages = [
       'python-neutron', 'openstack-neutron', 'openstack-neutron-ml2',
       'openstack-neutron-openvswitch', 'python-neutronclient',
@@ -227,6 +260,8 @@ class eayunstack::upgrade::neutron (
       ensure => latest,
     }
 
+    # Services
+
     $systemd_services = [
       'neutron-openvswitch-agent', 'neutron-qos-agent',
     ]
@@ -234,6 +269,8 @@ class eayunstack::upgrade::neutron (
       ensure => running,
       enable => true,
     }
+
+    # Augeases
 
     augeas { 'set-openflow-ew-dvr':
       context => '/files/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini',
@@ -253,11 +290,16 @@ class eayunstack::upgrade::neutron (
       ],
     }
 
+    # Ordering & Relationship
+
+    # OpenvSwitch agent
     Package['openstack-neutron-openvswitch'] {
       notify => [
+        Service['neutron-openvswitch-agent'],
+      ],
+      before => [
         Augeas['set-openflow-ew-dvr'],
         Augeas['set-es-port-metering'],
-        Service['neutron-openvswitch-agent'],
       ],
     }
 
@@ -268,6 +310,7 @@ class eayunstack::upgrade::neutron (
       ],
     }
 
+    # Service dependencies
     Package['openstack-neutron'] ~>
       Service['neutron-qos-agent']
 
