@@ -86,6 +86,15 @@ class eayunstack::upgrade::neutron (
       ],
     }
 
+    augeas { 'set-es-port-metering':
+      context => '/files/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini',
+      changes => [
+        'set securitygroup/enable_es_port_metering True'
+      ],
+    }
+
     file { 'replace-neutron-l3-agent':
       ensure => file,
       path   => '/usr/bin/neutron-l3-agent',
@@ -159,7 +168,14 @@ class eayunstack::upgrade::neutron (
     Exec['database-upgrade'] ~> Service['neutron-server']
 
     Package['openstack-neutron-openvswitch'] ~>
-      Service['neutron-openvswitch-agent']
+      Augeas['set-es-port-metering']
+
+    Service['neutron-openvswitch-agent'] {
+      subscribe => [
+        Package['openstack-neutron-openvswitch'],
+        Augeas['set-es-port-metering'],
+      ],
+    }
 
     Package['openstack-neutron-vpn-agent'] ->
       Augeas['add-pptp-vpn-device-driver'] ~>
@@ -228,12 +244,29 @@ class eayunstack::upgrade::neutron (
       ],
     }
 
-    Package['openstack-neutron-openvswitch'] ~>
-      Augeas['set-openflow-ew-dvr'] ~>
-        Service['neutron-openvswitch-agent']
+    augeas { 'set-es-port-metering':
+      context => '/files/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini',
+      changes => [
+        'set securitygroup/enable_es_port_metering True'
+      ],
+    }
 
-    Package['openstack-neutron'] ~>
-      Service['neutron-openvswitch-agent']
+    Package['openstack-neutron-openvswitch'] {
+      notify => [
+        Augeas['set-openflow-ew-dvr'],
+        Augeas['set-es-port-metering'],
+        Service['neutron-openvswitch-agent'],
+      ],
+    }
+
+    Service['neutron-openvswitch-agent'] {
+      subscribe => [
+        Augeas['set-openflow-ew-dvr'],
+        Augeas['set-es-port-metering'],
+      ],
+    }
 
     Package['openstack-neutron'] ~>
       Service['neutron-qos-agent']
