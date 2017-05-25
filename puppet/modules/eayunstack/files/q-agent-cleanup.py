@@ -131,9 +131,10 @@ class NeutronCleaner(object):
                             endpoint=a_url,
                         )
                         service_tenant = ks.tenants.find(name='services')
-                        auth_url = ks.endpoints.find(
+                        # get first vaild auth url
+                        auth_url = ks.endpoints.findall(
                                         service_id=ks.services.find(type='identity').id
-                                   ).internalurl
+                                   )[0].internalurl
                         # find and re-create temporary rescheduling-admin user with random password
                         try:
                             user = ks.users.find(username=TMP_USER_NAME)
@@ -494,8 +495,9 @@ class NeutronCleaner(object):
         }
         # collect pool-list from dead Lbaas agent
         dead_pools = []  # array of tuples (pool, agentID)
+        host_name = socket.gethostname()
         for agent in self._get_agents_by_type(agent_type):
-            if agent['alive']:
+            if agent['alive'] and (agent['host'] != host_name or not self.options.get('remove-self')):
                 self.log.info("found alive Lbaas agent: {0}".format(agent['id']))
                 agents['alive'].append(agent)
             else:
