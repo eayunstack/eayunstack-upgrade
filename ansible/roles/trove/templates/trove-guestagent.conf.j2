@@ -1,0 +1,25 @@
+[DEFAULT]
+debug = {{ trove_logging_debug }}
+
+control_exchange = trove
+
+log_file = trove-guestagent.log
+
+swift_container_allowed_origins = {{ trove_guestagent_conf.default.swift_container_allowed_origins }}
+
+guest_log_limit = {{ trove_guestagent_conf.default.guest_log_limit }}
+
+[oslo_messaging_rabbit]
+rabbit_hosts = {% for host in groups['controller'] %}{{ hostvars[host]['ansible_' + hostvars[host]['network_scheme']['roles']['ex']|replace('-', '_')]['ipv4']['address'] }}:{{ rabbit_port }}{% if not loop.last %},{% endif %}{% endfor %}
+
+rabbit_userid = nova
+rabbit_password = {{ rabbit.password }}
+rabbit_virtual_host = /
+
+[oslo_messaging_notifications]
+driver = messaging
+topics = notifications,monitor
+
+[mysql]
+replication_strategy = MysqlBinlogReplication
+replication_namespace = trove.guestagent.strategies.replication.mysql_binlog

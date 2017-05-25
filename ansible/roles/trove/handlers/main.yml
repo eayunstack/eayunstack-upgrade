@@ -1,0 +1,56 @@
+---
+- name: Restart trove-api container
+  vars:
+    service_name: "trove-api"
+    service: "{{ trove_services[service_name] }}"
+    trove_conf: "{{ trove_confs.results|selectattr('item.key', 'match', 'trove.conf')|first }}"
+    trove_taskmanager_conf: "{{ trove_confs.results|selectattr('item.key', 'match', 'trove-taskmanager.conf')|first }}"
+    trove_conductor_conf: "{{ trove_confs.results|selectattr('item.key', 'match', 'trove-conductor.conf')|first }}"
+    trove_api_container: "{{ check_trove_containers.results|selectattr('item.key', 'match', service_name)|first }}"
+  kolla_docker:
+    action: "recreate_or_restart_container"
+    name: "{{ service.container_name }}"
+    image: "{{ service.image }}"
+    volumes: "{{ service.volumes }}"
+    restart_policy: "{{ docker_restart_policy }}"
+  when: trove_conf.changed | bool
+        or trove_api_container.changed | bool
+        or (trove_database_migrate is defined and trove_database_migrate.changed | bool)
+
+- name: Restart trove-taskmanager container
+  vars:
+    service_name: "trove-taskmanager"
+    service: "{{ trove_services[service_name] }}"
+    trove_conf: "{{ trove_confs.results|selectattr('item.key', 'match', 'trove.conf')|first }}"
+    trove_taskmanager_conf: "{{ trove_confs.results|selectattr('item.key', 'match', 'trove-taskmanager.conf')|first }}"
+    trove_conductor_conf: "{{ trove_confs.results|selectattr('item.key', 'match', 'trove-conductor.conf')|first }}"
+    trove_taskmanager_container: "{{ check_trove_containers.results|selectattr('item.key', 'match', service_name)|first }}"
+  kolla_docker:
+    action: "recreate_or_restart_container"
+    name: "{{ service.container_name }}"
+    image: "{{ service.image }}"
+    volumes: "{{ service.volumes }}"
+    restart_policy: "{{ docker_restart_policy }}"
+  when: trove_conf.changed | bool
+        or trove_taskmanager_conf.changed | bool
+        or trove_taskmanager_container.changed | bool
+        or (trove_database_migrate is defined and trove_database_migrate.rc == 0)
+
+- name: Restart trove-conductor container
+  vars:
+    service_name: "trove-conductor"
+    service: "{{ trove_services[service_name] }}"
+    trove_conf: "{{ trove_confs.results|selectattr('item.key', 'match', 'trove.conf')|first }}"
+    trove_taskmanager_conf: "{{ trove_confs.results|selectattr('item.key', 'match', 'trove-taskmanager.conf')|first }}"
+    trove_conductor_conf: "{{ trove_confs.results|selectattr('item.key', 'match', 'trove-conductor.conf')|first }}"
+    trove_conductor_container: "{{ check_trove_containers.results|selectattr('item.key', 'match', service_name)|first }}"
+  kolla_docker:
+    action: "recreate_or_restart_container"
+    name: "{{ service.container_name }}"
+    image: "{{ service.image }}"
+    volumes: "{{ service.volumes }}"
+    restart_policy: "{{ docker_restart_policy }}"
+  when: trove_conf.changed | bool
+        or trove_conductor_conf.changed | bool
+        or trove_conductor_container.changed | bool
+        or (trove_database_migrate is defined and trove_database_migrate.rc == 0)
