@@ -4,6 +4,9 @@ eayunstack_config_base: "/etc/eayunstack/docker"
 eayunstack_log_base: "/var/log/eayunstack/docker"
 eayunstack_passwords_file: "{{ eayunstack_config_base }}/passwords.yml"
 
+# HAProxy config base directory
+haproxy_config_base: "/etc/haproxy/conf.d"
+
 # Default Keystone variables
 keystone_region: "RegionOne"
 keystone_api_port: "5000"

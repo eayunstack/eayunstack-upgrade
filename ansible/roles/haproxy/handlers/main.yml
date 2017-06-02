@@ -1,0 +1,4 @@
+---
+- name: Reload HAProxy
+  shell: |
+    export OCF_ROOT="/usr/lib/ocf"; (ip netns list | grep haproxy) && ip netns exec haproxy /usr/lib/ocf/resource.d/mirantis/ns_haproxy reload

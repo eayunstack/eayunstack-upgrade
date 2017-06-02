@@ -18,3 +18,4 @@
   gather_facts: false
   roles:
     - trove
+    - haproxy
