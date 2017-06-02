@@ -1,0 +1,11 @@
+# EayunStack Ansible base directory
+eayunstack_ansible_base: "/var/www/nailgun/eayunstack/ansible"
+eayunstack_config_base: "/etc/eayunstack/docker"
+eayunstack_passwords_file: "{{ eayunstack_config_base }}/passwords.yml"
+
+# Docker registry
+eayunstack_registry_port: "5010"
+docker_registry: "{{ master_ip }}:{{eayunstack_registry_port}}"
+eayunstack_docker_prefix: "eayunstack"
+# Valid options are [ never, on-failure, always ]
+docker_restart_policy: "always"

@@ -1,0 +1,6 @@
+- name: Setup Fuel node
+  hosts: localhost
+  gather_facts: false
+
+  roles:
+    - fuel

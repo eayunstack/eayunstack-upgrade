@@ -1,0 +1,47 @@
+---
+- name: get list of docker images
+  shell: |
+    find "{{ images_directory }}/" -type f | sort -rn
+  register: images_dir_content
+  changed_when: false
+
+- name: load docker images
+  docker_image:
+    name: "{{ item.value.image_name }}"
+    load_path: "{{ images_dir_content.stdout_lines|select('search', item.value.file_name)|first }}"
+    repository: "127.0.0.1:{{ eayunstack_registry_port }}/{{ item.value.image_name }}"
+    force: true
+  with_dict: "{{ eayunstack_docker_images }}"
+
+- name: ensure registry directory exist
+  file:
+    path: "{{ eayunstack_registry_diretory }}"
+    state: "directory"
+    recurse: yes
+
+- name: start registry container
+  kolla_docker:
+    action: "start_container"
+    name: "eayunstack-registry"
+    image: "eayunstack/registry"
+    volumes:
+      - "{{ eayunstack_registry_diretory }}:{{ eayunstack_registry_diretory }}"
+    environment:
+      STORAGE_PATH: "{{ eayunstack_registry_diretory }}"
+      REGISTRY_PORT: "{{ eayunstack_registry_port }}"
+    restart_policy: "{{ docker_restart_policy }}"
+
+- name: waiting for registry ready...
+  uri:
+    url: http://127.0.0.1:5010/v1/_ping
+  register: eayunstack_registry_check
+  until: eayunstack_registry_check['status']|default(0) == 200
+  retries: "{{ eayunstack_registry_check_retries }}"
+  delay: "{{ eayunstack_registry_check_delay }}"
+
+- name: push images to registry
+  docker_image:
+    name: "127.0.0.1:{{ eayunstack_registry_port }}/{{ item.value.image_name }}"
+    push: true
+  with_dict: "{{ eayunstack_docker_images }}"
+  when: item.value.push | bool
