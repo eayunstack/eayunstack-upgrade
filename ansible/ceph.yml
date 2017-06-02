@@ -1,0 +1,72 @@
+---
+# This playbook does a rolling update for all the Ceph services
+#
+# The value of 'serial:' adjusts the number of servers to be updated simultaneously.
+# We recommend a value of 1, which means hosts of a group (e.g: monitor) will be
+# upgraded one by one. It is really crucial for the update process to happen
+# in a serialized fashion. DO NOT CHANGE THIS VALUE.
+#
+# The four roles that apply to the ceph hosts will be applied: ceph-common,
+# ceph-mon, ceph-osd and ceph-mds. So any changes to configuration, package updates, etc,
+# will be applied as part of the rolling update process.
+#
+
+# /!\ DO NOT FORGET TO CHANGE THE RELEASE VERSION FIRST! /!\
+
+- name: gather facts and install packages
+
+  hosts:
+    - controller
+    - ceph-osd
+    - compute
+    - obs
+
+  become: True
+
+  roles:
+    - { role: ceph, action: 'install_packages' }
+
+- name: restart ceph mons
+
+  vars:
+    health_mon_check_retries: 5
+    health_mon_check_delay: 10
+
+  hosts:
+    - controller
+    - obs
+
+  gather_facts: false
+  serial: 1
+  become: True
+
+  roles:
+    - { role: ceph, action: 'restart_mons' }
+
+- name: restart ceph osds
+
+  vars:
+    health_osd_check_retries: 40
+    health_osd_check_delay: 30
+
+  hosts:
+    - ceph-osd
+    - obs
+
+  gather_facts: false
+  serial: 1
+  become: True
+
+  roles:
+    - { role: ceph, action: 'restart_osds' }
+
+- name: restart ceph rgws
+
+  hosts: obs
+
+  gather_facts: false
+  serial: 1
+  become: True
+
+  roles:
+    - { role: ceph, action: 'restart_rgws' }

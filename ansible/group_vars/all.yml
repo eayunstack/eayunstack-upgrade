@@ -40,3 +40,7 @@ eayunstack_docker_prefix: "eayunstack"
 docker_restart_policy: "always"
 # to avoid Docker read real path of symlink
 timezone_path: "/usr/share/zoneinfo/Asia/Shanghai"
+
+# Ceph
+mon_group_name: "controller"
+osd_group_name: "ceph-osd"

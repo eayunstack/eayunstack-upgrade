@@ -1,0 +1,24 @@
+ceph_cluster: ceph
+
+mon_group_name: mons
+osd_group_name: osds
+rgw_group_name: rgws
+
+rgw_pcs_resource: p_ceph_rgw
+
+ceph_common_packages:
+  - ceph
+  - ceph-common
+  - ceph-deploy
+  - libcephfs1
+  - python-ceph-compat
+  - python-cephfs
+
+ceph_lib_packages:
+  - librados2
+  - librbd1
+  - python-rados
+  - python-rbd
+
+ceph_rgw_packages:
+  - ceph-radosgw

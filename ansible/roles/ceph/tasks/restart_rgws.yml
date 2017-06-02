@@ -1,0 +1,4 @@
+- name: restart ceph rgw
+  service:
+    name: radosgw
+    state: restarted
