@@ -4,3 +4,11 @@
 
   roles:
     - fuel
+
+- name: Gather facts
+  hosts: all
+  roles:
+    - common
+  tasks:
+    - name: group hosts by Fuel node role
+      group_by: key={{ role }}

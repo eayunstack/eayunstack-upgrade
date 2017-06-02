@@ -1,6 +1,7 @@
 # EayunStack Ansible base directory
 eayunstack_ansible_base: "/var/www/nailgun/eayunstack/ansible"
 eayunstack_config_base: "/etc/eayunstack/docker"
+eayunstack_log_base: "/var/log/eayunstack/docker"
 eayunstack_passwords_file: "{{ eayunstack_config_base }}/passwords.yml"
 
 # Docker registry

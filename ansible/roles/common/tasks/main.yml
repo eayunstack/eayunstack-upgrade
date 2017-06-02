@@ -1,0 +1,27 @@
+---
+- name: Ensuring base config directory exist
+  file:
+    path: "{{ eayunstack_config_base }}"
+    state: "directory"
+    recurse: yes
+
+- name: Copy passwords.yml
+  copy:
+    src: "{{ eayunstack_passwords_file }}"
+    dest: "{{ eayunstack_passwords_file }}"
+
+- name: load passwords.yml
+  include_vars:
+    file: "{{ eayunstack_passwords_file }}"
+
+- name: fetch fuel astute config
+  fetch:
+    src: "{{ fuel_facts_path }}"
+    dest: "{{ fetch_directory }}"
+
+- name: load fuel astute config
+  include_vars:
+    file: "{{ fetch_directory }}/{{ inventory_hostname }}{{ fuel_facts_path}}"
+
+- include: docker.yml
+  when: inventory_hostname in groups['controller']
