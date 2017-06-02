@@ -70,3 +70,32 @@
 
   roles:
     - { role: ceph, action: 'restart_rgws' }
+
+- name: ensure ceph auth and restart related services
+
+  hosts: controller
+
+  vars:
+    affected_services:
+      - openstack-cinder-volume
+      - openstack-cinder-backup
+
+  gather_facts: false
+  serial: 1
+  become: True
+
+  tasks:
+    - name: restart affected services
+      service:
+        name: "{{ item }}"
+        state: restarted
+      with_items: "{{ affected_services }}"
+      when: install_ceph_lib.changed
+
+    - name: ensure client.compute can write to images pool
+      ceph_pool_caps:
+        user: client.compute
+        pool: images
+        caps: rwx
+      run_once: True
+      delegate_to: "{{ groups['controller'][0] }}"
