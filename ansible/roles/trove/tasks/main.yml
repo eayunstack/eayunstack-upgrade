@@ -1,0 +1,56 @@
+- name: ensure trove tenant, user, endpoints
+  run_once: True
+  keystone:
+    region_name: "{{ keystone_region }}"
+    endpoint: "{{ keystone_admin_endpoint_v3 }}"
+    token: "{{ keystone.admin_token }}"
+    command: "{{ item.command }}"
+    user_name: "trove"
+    password: "{{ trove_keystone_password }}"
+    project_name: "{{ item.tenant | default(None) }}"
+    role_name: "{{ item.role | default(None) }}"
+    service_name: "{{ item.service_name | default(None) }}"
+    service_type: "{{ item.service_type | default(None) }}"
+    description: "{{ item.description | default(None) }}"
+    endpoint_list: "{{ item.endpoint_list | default([]) }}"
+  with_items:
+    - { command: 'ensure_user' }
+    - { command: 'ensure_tenant', tenant: "{{ trove_managed_tenant }}" }
+    - { command: 'ensure_user_role', tenant: 'services', role: 'admin' }
+    - { command: 'ensure_user_role', tenant: "{{ trove_managed_tenant }}", role: 'admin' }
+    - { command: 'ensure_service', service_name: 'trove', service_type: 'database', description: 'Trove Database Service' }
+    - { command: 'ensure_endpoint', service_name: 'trove', service_type: 'database', endpoint_list: "{{ trove_endpoints }}" }
+
+- name: get id of trove-managed-tenant
+  keystone:
+    endpoint: "{{ keystone_admin_endpoint_v3 }}"
+    token: "{{ keystone.admin_token }}"
+    command: "get_tenant"
+    tenant_name: "{{ trove_managed_tenant }}"
+  register: trove_managed_tenant_id
+
+- name: Creating trove database
+  mysql_db:
+    config_file: "{{ mysql_conf_file }}"
+    name: "{{ trove_database_name }}"
+  register: trove_database
+  run_once: True
+  delegate_to: "{{ groups['controller'][0] }}"
+
+- name: Creating trove database user and setting permissions
+  mysql_user:
+    config_file: "{{ mysql_conf_file }}"
+    name: "{{ trove_database_name }}"
+    password: "{{ trove_database_password }}"
+    host: "%"
+    priv: "{{ trove_database_name }}.*:ALL"
+    append_privs: "yes"
+  run_once: True
+  delegate_to: "{{ groups['controller'][0] }}"
+
+- include: pull.yml
+
+- include: config.yml
+
+- include: database_migrate.yml
+

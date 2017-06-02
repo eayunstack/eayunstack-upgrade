@@ -1,0 +1,14 @@
+[DEFAULT]
+debug = {{ trove_logging_debug }}
+
+control_exchange = trove
+
+volume_time_out = {{ trove_taskmanager_conf.default.volume_time_out }}
+server_delete_time_out = {{ trove_taskmanager_conf.default.server_delete_time_out }}
+
+log_file = trove-taskmanager.log
+
+taskmanager_manager=trove.taskmanager.manager.Manager
+
+guest_info = {{ trove_taskmanager_conf.default.guest_info }}
+injected_config_location = {{ trove_taskmanager_conf.default.injected_config_location }}

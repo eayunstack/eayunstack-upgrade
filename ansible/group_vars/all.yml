@@ -4,9 +4,36 @@ eayunstack_config_base: "/etc/eayunstack/docker"
 eayunstack_log_base: "/var/log/eayunstack/docker"
 eayunstack_passwords_file: "{{ eayunstack_config_base }}/passwords.yml"
 
+# Default Keystone variables
+keystone_region: "RegionOne"
+keystone_api_port: "5000"
+keystone_admin_port: "35357"
+keystone_admin_endpoint_v3: "http://{{ management_vip }}:{{ keystone_admin_port }}/v3/"
+keystone_internal_endpoint: "http://{{ management_vip }}:{{ keystone_api_port }}/2.0/"
+
+# MySQL
+mysql_conf_file: "/etc/my.cnf"
+
+# Nova
+nova_api_port: "8774"
+
+# Cinder
+cinder_api_port: "8776"
+
+# Trove
+trove_api_port: "8779"
+
+# Neutron
+neutron_api_port: "9696"
+
+# RabbitMQ
+rabbit_port: "5673"
+
 # Docker registry
 eayunstack_registry_port: "5010"
 docker_registry: "{{ master_ip }}:{{eayunstack_registry_port}}"
 eayunstack_docker_prefix: "eayunstack"
 # Valid options are [ never, on-failure, always ]
 docker_restart_policy: "always"
+# to avoid Docker read real path of symlink
+timezone_path: "/usr/share/zoneinfo/Asia/Shanghai"
