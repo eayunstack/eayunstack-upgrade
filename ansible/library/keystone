@@ -452,9 +452,7 @@ COMMAND_MAP = {
 
 try:
     from keystoneclient import exceptions as kexceptions
-    from keystoneclient import client
-    from keystoneauth1.identity import v3
-    from keystoneauth1 import session
+    from keystoneclient.v3 import client
 
 except ImportError:
     keystoneclient_found = False
@@ -608,10 +606,7 @@ class ManageKeystone(object):
 
             if variables_dict.pop('ignore_catalog'):
                 client_args.update(endpoint_override=endpoint)
-            auth = v3.Password(**auth_args)
-            sess = session.Session(auth=auth)
-            self.keystone = client.Client(session=sess,
-                                          **client_args)
+            self.keystone = client.Client(**client_args)
 
     def _get_domain_from_vars(self, variables):
         # NOTE(sigmavirus24): Since we don't require domain, this will be None
