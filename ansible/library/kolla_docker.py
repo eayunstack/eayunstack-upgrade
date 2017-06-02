@@ -285,6 +285,7 @@ class DockerWorker(object):
     def check_container_differs(self):
         container_info = self.get_container_info()
         return (
+            self.compare_restart_policy(container_info) or
             self.compare_cap_add(container_info) or
             self.compare_security_opt(container_info) or
             self.compare_image(container_info) or
@@ -296,6 +297,24 @@ class DockerWorker(object):
             self.compare_volumes_from(container_info) or
             self.compare_environment(container_info)
         )
+
+    def compare_restart_policy(self, container_info):
+        new_restart_policy = self.params.get('restart_policy')
+        new_max_retries = self.params.get('restart_retries')
+        current_host_conf = container_info['HostConfig']
+        current_restart_policy = current_host_conf.get('RestartPolicy').get(
+                                     'Name')
+        if not current_restart_policy:
+            current_restart_policy = None
+        current_max_retries = current_host_conf.get('RestartPolicy').get(
+                                  'MaximumRetryCount')
+
+        if new_restart_policy != current_restart_policy:
+            return True
+
+        if (new_restart_policy == 'on-failure' and
+            new_max_retries != current_max_retries):
+            return True
 
     def compare_ipc_mode(self, container_info):
         new_ipc_mode = self.params.get('ipc_mode')
@@ -562,7 +581,7 @@ class DockerWorker(object):
             'detach': self.params.get('detach'),
             'environment': self._format_env_vars(),
             'host_config': self.build_host_config(binds),
-            'labels': self.params.get('labels'),
+            'labels': self.params.get('labels') or None,
             'image': self.params.get('image'),
             'name': self.params.get('name'),
             'volumes': volumes,
@@ -764,7 +783,11 @@ def generate_module():
     # NOTE(jeffrey4l): merge the environment
     env = module.params.pop('environment', dict())
     if env:
+        if not new_args.get('environment'):
+            new_args['environment'] = dict()
         new_args['environment'].update(env)
+    else:
+        new_args['environment'] = dict()
 
     for key, value in module.params.items():
         if key in new_args and value is None:
