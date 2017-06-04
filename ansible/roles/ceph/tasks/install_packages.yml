@@ -2,21 +2,21 @@
 - name: install ceph common packages
   package:
     name: "{{ item }}"
-    state: latest
+    state: "{{ (downgrade_ceph|default('false')|bool) | ternary('present', 'latest') }}"
   with_items: "{{ ceph_common_packages }}"
   register: install_ceph_common
 
 - name: install ceph library packages
   package:
     name: "{{ item }}"
-    state: latest
+    state: "{{ (downgrade_ceph|default('false')|bool) | ternary('present', 'latest') }}"
   with_items: "{{ ceph_lib_packages }}"
   register: install_ceph_lib
 
 - name: install ceph rados gateway
   package:
     name: "{{ item }}"
-    state: latest
+    state: "{{ (downgrade_ceph|default('false')|bool) | ternary('present', 'latest') }}"
   with_items: "{{ ceph_rgw_packages }}"
   when: (groups[rgw_group_name] is defined
          and inventory_hostname in groups[rgw_group_name])
@@ -37,4 +37,5 @@
 - name: reload ceph systemd services
   shell: "systemctl daemon-reload"
   when: install_ceph_common.changed or
-        install_ceph_radosgw.changed
+        install_ceph_radosgw.changed or
+        (ceph_downgraded|default('false')|bool)

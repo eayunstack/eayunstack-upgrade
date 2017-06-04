@@ -1,4 +1,7 @@
 ---
+- include: downgrade_packages.yml
+  when: (downgrade_ceph|default('false')|bool)
+
 - include: install_packages.yml
   when: action == 'install_packages'
 
@@ -7,14 +10,16 @@
     - action == 'restart_mons'
     - (ceph_common_upgraded|default('false')|bool) or
       (ceph_lib_upgraded|default('false')|bool) or
-      (force_restart_ceph|default('false')|bool)
+      (force_restart_ceph|default('false')|bool) or
+      (ceph_downgraded|default('false')|bool)
 
 - include: restart_osds.yml
   when:
     - action == 'restart_osds'
     - (ceph_common_upgraded|default('false')|bool) or
       (ceph_lib_upgraded|default('false')|bool) or
-      (force_restart_ceph|default('false')|bool)
+      (force_restart_ceph|default('false')|bool) or
+      (ceph_downgraded|default('false')|bool)
 
 - include: restart_rgws.yml
   when:
@@ -22,4 +27,5 @@
     - (ceph_common_upgraded|default('false')|bool) or
       (ceph_lib_upgraded|default('false')|bool) or
       (ceph_radosgw_upgraded|default('false')|bool) or
-      (force_restart_ceph|default('false')|bool)
+      (force_restart_ceph|default('false')|bool) or
+      (ceph_downgraded|default('false')|bool)
