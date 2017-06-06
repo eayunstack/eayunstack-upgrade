@@ -1,4 +1,7 @@
 ---
+packages_needed_on_fuel:
+  - python-docker-py
+
 images_directory: "{{ eayunstack_ansible_base }}/docker_images"
 
 eayunstack_docker_images:

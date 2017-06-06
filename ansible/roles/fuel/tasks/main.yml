@@ -1,4 +1,11 @@
 ---
+- name: install packages on Fuel
+  package:
+    name: "{{ item }}"
+    state: latest
+    use: yum
+  with_items: "{{ packages_needed_on_fuel }}"
+
 - name: get list of docker images
   shell: |
     find "{{ images_directory }}/" -type f | sort -rn
