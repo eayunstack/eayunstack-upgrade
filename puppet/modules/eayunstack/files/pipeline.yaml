@@ -42,55 +42,17 @@ sources:
           - "bandwidth"
       sinks:
           - meter_sink
-    - name: instance_source
-      interval: 600
-      meters:
-          - "instance"
-          - "instance.flavor"
-          - "instance.delete"
-          - "instance.scheduled"
-      sinks:
-          - meter_sink
     - name: memory_source
       interval: 600
       meters:
           - "memory"
       sinks:
           - meter_sink
-    - name: image_source
-      interval: 600
+    - name: es_network_source
+      interval: 60
       meters:
-          - "image"
-          - "image.size"
-          - "image.download"
-          - "image.serve"
-      sinks:
-          - meter_sink
-    - name: volume_source
-      interval: 600
-      meters:
-          - "volume"
-          - "volume.size"
-      sinks:
-          - meter_sink
-    - name: identity_source
-      interval: 600
-      meters:
-          - "identity.user.*"
-          - "identity.group.*"
-          - "identity.role.*"
-          - "identity.project.*"
-          - "identity.trust.*"
-      sinks:
-          - meter_sink
-    - name: network_source
-      interval: 600
-      meters:
-           - "network*"
-           - "subnet*"
-           - "port*"
-           - "router*"
-           - "ip*"
+           - "network.es.port.*"
+           - "network.services.es.*"
       sinks:
           - meter_sink
 sinks:
