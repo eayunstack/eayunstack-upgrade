@@ -15,6 +15,8 @@
 
 - name: gather facts and install packages
 
+  vars:
+    with_controllers: "{{ ('controller' in groups) and (groups['controller']|length > 0) }}"
   hosts:
     - controller
     - ceph-osd
@@ -22,6 +24,23 @@
     - obs
 
   become: True
+
+  pre_tasks:
+    - name: fetch fuel facts from the first controller
+      fetch:
+        src: "{{ fuel_facts_file }}"
+        dest: "{{ fuel_facts_fetch_directory }}"
+      run_once: True
+      delegate_to: "{{ groups['controller'][0] }}"
+      register: fuel_facts_fetched
+      when: with_controllers|bool
+
+    - name: load fuel facts on obs nodes
+      include_vars:
+        file: "{{ fuel_facts_fetch_directory }}/{{ groups['controller'][0] }}{{ fuel_facts_file }}"
+      when:
+        - with_controllers|bool
+        - inventory_hostname in groups['obs']
 
   roles:
     - { role: ceph, action: 'install_packages' }

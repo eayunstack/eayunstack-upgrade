@@ -4,6 +4,10 @@ eayunstack_config_base: "/etc/eayunstack/docker"
 eayunstack_log_base: "/var/log/eayunstack/docker"
 eayunstack_passwords_file: "{{ eayunstack_config_base }}/passwords.yml"
 
+# Fuel
+fuel_facts_fetch_directory: fuel_facts
+fuel_facts_file: /etc/astute.yaml
+
 # HAProxy config base directory
 haproxy_config_base: "/etc/haproxy/conf.d"
 

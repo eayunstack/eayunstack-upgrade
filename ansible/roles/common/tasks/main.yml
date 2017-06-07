@@ -16,12 +16,12 @@
 
 - name: fetch fuel astute config
   fetch:
-    src: "{{ fuel_facts_path }}"
-    dest: "{{ fetch_directory }}"
+    src: "{{ fuel_facts_file }}"
+    dest: "{{ fuel_facts_fetch_directory }}"
 
 - name: load fuel astute config
   include_vars:
-    file: "{{ fetch_directory }}/{{ inventory_hostname }}{{ fuel_facts_path}}"
+    file: "{{ fuel_facts_fetch_directory }}/{{ inventory_hostname }}{{ fuel_facts_file}}"
 
 - include: docker.yml
   when: inventory_hostname in groups['controller']

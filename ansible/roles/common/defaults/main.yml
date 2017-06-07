@@ -1,8 +1,4 @@
 ---
-
-fetch_directory: fuel_facts
-fuel_facts_path: /etc/astute.yaml
-
 pkg_install:
   - docker
   - python-docker-py

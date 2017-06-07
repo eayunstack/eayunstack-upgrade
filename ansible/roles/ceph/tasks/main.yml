@@ -1,4 +1,6 @@
 ---
+- include: config.yml
+
 - include: downgrade_packages.yml
   when: (downgrade_ceph|default('false')|bool)
 
