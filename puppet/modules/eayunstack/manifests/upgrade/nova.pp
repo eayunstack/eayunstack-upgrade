@@ -8,6 +8,7 @@ class eayunstack::upgrade::nova (
   # reclaim interval is 10 days.
   $reclaim_instance_interval = '864000'
   $novnc_https_url = "https://${fuel_settings['public_vip']}:6080/vnc_auto.html"
+  $quota_key_pairs = '-1'
 
   $packages = { controller => [
                               'python-nova', 'openstack-nova-objectstore', 'openstack-nova-api',
@@ -62,10 +63,20 @@ class eayunstack::upgrade::nova (
       ],
     }
 
+    augeas { 'resize_quota_key_pairs':
+      context => '/files/etc/nova/nova.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/nova/nova.conf',
+      changes => [
+        "set DEFAULT/quota_key_pairs ${quota_key_pairs}",
+      ],
+    }
+
     Package['python-nova'] {
       notify => [
         Augeas['add_cinder_admin_info'],
         Augeas['set_reclaim_instance_interval'],
+        Augeas['resize_quota_key_pairs'],
       ],
     }
     Augeas['add_cinder_admin_info'] {
@@ -78,6 +89,11 @@ class eayunstack::upgrade::nova (
       notify => [
         Service['openstack-nova-api'],
         Service['openstack-nova-conductor'],
+      ],
+    }
+    Augeas['resize_quota_key_pairs'] {
+      notify => [
+        Service['openstack-nova-api'],
       ],
     }
 
