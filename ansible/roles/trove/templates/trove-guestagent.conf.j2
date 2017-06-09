@@ -10,7 +10,7 @@ swift_container_allowed_origins = {{ trove_guestagent_conf.default.swift_contain
 guest_log_limit = {{ trove_guestagent_conf.default.guest_log_limit }}
 
 [oslo_messaging_rabbit]
-rabbit_hosts = {% for host in groups['controller'] %}{{ hostvars[host]['ansible_' + hostvars[host]['network_scheme']['roles']['ex']|replace('-', '_')]['ipv4']['address'] }}:{{ rabbit_port }}{% if not loop.last %},{% endif %}{% endfor %}
+rabbit_hosts = {% if trove_guestagent_rabbit_hosts|default([])|length > 0 %}{{ trove_guestagent_rabbit_hosts|join(',') }}{% else %}{% for host in groups['controller'] %}{{ hostvars[host]['ansible_' + hostvars[host]['network_scheme']['roles']['ex']|replace('-', '_')]['ipv4']['address'] }}:{{ rabbit_port }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}
 
 rabbit_userid = nova
 rabbit_password = {{ rabbit.password }}

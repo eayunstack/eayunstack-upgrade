@@ -24,6 +24,7 @@ ceph_lib_packages:
 ceph_rgw_packages:
   - ceph-radosgw
 
+rgw_use_keystone: "false"
 keystone_accepted_roles: "Member, _member_, admin, SwiftOperator"
 keystone_token_cache_size: "500"
 keystone_revocation_interval: "500"
@@ -31,28 +32,19 @@ rgw_s3_use_keystone: "true"
 
 ceph_conf:
   - section: "global"
+    pre_check: "{{ rgw_use_keystone|bool }}"
+    apply_to:
+      - "{{ rgw_group_name }}"
     configurations:
       - option: "rgw keystone url"
-        value: "http://{{ management_vip }}:{{ keystone_admin_port }}"
-        apply_to:
-          - "{{ rgw_group_name|default('rgw') }}"
+        value: "{{ rgw_keystone_url|default('') }}"
       - option: "rgw keystone admin token"
-        value: "{{ keystone['admin_token'] }}"
-        apply_to:
-          - "{{ rgw_group_name|default('rgw') }}"
+        value: "{{ keystone_admin_token|default('') }}"
       - option: "rgw keystone accepted roles"
-        value: "Member, _member_, admin, SwiftOperator"
-        apply_to:
-          - "{{ rgw_group_name|default('rgw') }}"
+        value: "{{ keystone_accepted_roles }}"
       - option: "rgw keystone token cache size"
         value: "{{ keystone_token_cache_size }}"
-        apply_to:
-          - "{{ rgw_group_name|default('rgw') }}"
       - option: "rgw keystone revocation interval"
         value: "{{ keystone_revocation_interval }}"
-        apply_to:
-          - "{{ rgw_group_name|default('rgw') }}"
       - option: "rgw s3 auth use keystone"
         value: "{{ rgw_s3_use_keystone }}"
-        apply_to:
-          - "{{ rgw_group_name|default('rgw') }}"
