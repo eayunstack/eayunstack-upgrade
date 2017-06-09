@@ -1,0 +1,81 @@
+[DEFAULT]
+debug = {{ trove_logging_debug }}
+
+log_dir = /var/log/trove
+
+bind_port = {{ trove_api_port }}
+
+control_exchange = trove
+
+trove_auth_url = http://{{ management_vip }}:{{ keystone_api_port }}/v2.0
+nova_compute_url = http://{{ management_vip }}:{{ nova_api_port }}/v2
+cinder_url = http://{{ management_vip }}:{{ cinder_api_port }}/v1
+neutron_url = http://{{ management_vip }}:{{ neutron_api_port }}/
+
+nova_proxy_admin_user = trove
+nova_proxy_admin_pass = {{ trove_keystone_password }}
+nova_proxy_admin_tenant_name = {{ trove_managed_tenant }}
+nova_proxy_admin_tenant_id = {{ trove_managed_tenant_id['ansible_facts']['keystone_facts']['id'] }}
+
+remote_nova_client = trove.common.single_tenant_remote.nova_client_trove_admin
+remote_cinder_client = trove.common.single_tenant_remote.cinder_client_trove_admin
+remote_neutron_client = trove.common.single_tenant_remote.neutron_client_trove_admin
+
+network_label_regex=.*
+
+trove_volume_support = True
+block_device_mapping = vdb
+device_path = /dev/vdb
+
+max_accepted_volume_size = {{ trove_conf.default.max_accepted_volume_size }}
+max_instances_per_tenant = {{ trove_conf.default.max_instances_per_tenant }}
+max_volumes_per_tenant = {{ trove_conf.default.max_volumes_per_tenant }}
+max_backups_per_tenant = {{ trove_conf.default.max_backups_per_tenant }}
+volume_time_out = {{ trove_conf.default.volume_time_out }}
+
+http_get_rate = {{ trove_conf.default.http_get_rate }}
+http_post_rate = {{ trove_conf.default.http_post_rate }}
+http_put_rate = {{ trove_conf.default.http_put_rate }}
+http_delete_rate = {{ trove_conf.default.http_delete_rate }}
+http_mgmt_post_rate = {{ trove_conf.default.http_mgmt_post_rate }}
+
+network_driver=trove.network.neutron.NeutronDriver
+
+agent_heartbeat_time = {{ trove_conf.default.agent_heartbeat_time }}
+agent_call_low_timeout = {{ trove_conf.default.agent_call_high_timeout }}
+agent_call_high_timeout = {{ trove_conf.default.agent_call_high_timeout }}
+
+reboot_time_out = {{ trove_conf.default.reboot_time_out }}
+
+log_dir = /var/log/trove
+log_file = trove-api.log
+
+[database]
+connection = mysql://trove:{{ trove_database_password }}@{{ management_vip }}/trove?&read_timeout=60
+
+[oslo_messaging_rabbit]
+rabbit_hosts = 127.0.0.1:{{ rabbit_port}},{% for host in groups['controller']|difference([inventory_hostname]) %}{{ hostvars[host]['ansible_' + hostvars[host]['network_scheme']['roles']['management']|replace('-', '_')]['ipv4']['address'] }}:{{ rabbit_port }}{% if not loop.last %},{% endif %}{% endfor %}
+
+rabbit_userid = nova
+rabbit_password = {{ rabbit.password }}
+rabbit_virtual_host = /
+
+[mysql]
+tcp_ports = {{ trove_conf.mysql.tcp_ports }}
+
+[keystone_authtoken]
+auth_uri = http://{{ management_vip }}:{{ keystone_api_port }}
+auth_version = v2.0
+auth_url = http://{{ management_vip }}:{{ keystone_admin_port }}
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = services
+username = trove
+password = {{ trove_keystone_password }}
+region_name = {{ keystone_region }}
+auth_plugin = password
+
+[oslo_messaging_notifications]
+driver = messaging
+topics = notifications,monitor

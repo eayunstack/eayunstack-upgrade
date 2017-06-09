@@ -1,0 +1,8 @@
+{{ eayunstack_log_base }}/{{ project_name}}/*.log {
+    weekly
+    rotate {{ trove_logrotate_conf.rotate }}
+    minsize {{ trove_logrotate_conf.minsize }}
+    compress
+    missingok
+    notifempty
+}

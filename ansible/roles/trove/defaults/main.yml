@@ -1,0 +1,108 @@
+---
+project_name: trove
+
+trove_sys_uid: 969
+trove_sys_gid: 969
+trove_sys_homedir: "/var/lib/trove"
+
+trove_database_name: "trove"
+
+trove_services:
+  trove-api:
+    container_name: trove_api
+    image: "{{ trove_api_image }}"
+    volumes:
+      - "{{ trove_sys_homedir }}:{{ trove_sys_homedir }}"
+      - "{{ eayunstack_config_base }}/{{ project_name }}:{{ trove_config_diretory }}:ro"
+      - "{{ timezone_path }}:/etc/localtime:ro"
+      - "{{ eayunstack_log_base }}/{{ project_name }}:{{ trove_log_directory }}"
+  trove-taskmanager:
+    container_name: trove_taskmanager
+    image: "{{ trove_taskmanager_image }}"
+    volumes:
+      - "{{ trove_sys_homedir }}:{{ trove_sys_homedir }}"
+      - "{{ eayunstack_config_base }}/{{ project_name }}:{{ trove_config_diretory }}:ro"
+      - "{{ timezone_path }}:/etc/localtime:ro"
+      - "{{ eayunstack_log_base }}/{{ project_name }}:{{ trove_log_directory }}"
+  trove-conductor:
+    container_name: trove_conductor
+    image: "{{ trove_conductor_image }}"
+    volumes:
+      - "{{ trove_sys_homedir }}:{{ trove_sys_homedir }}"
+      - "{{ eayunstack_config_base }}/{{ project_name }}:{{ trove_config_diretory }}:ro"
+      - "{{ timezone_path }}:/etc/localtime:ro"
+      - "{{ eayunstack_log_base }}/{{ project_name }}:{{ trove_log_directory }}"
+
+trove_config_diretory: /etc/trove
+trove_config_files:
+  trove.conf:
+    handlers:
+      - Restart trove-api container
+      - Restart trove-taskmanager container
+      - Restart trove-conductor container
+  trove-taskmanager.conf:
+    handlers:
+      - Restart trove-taskmanager container
+  trove-conductor.conf:
+    handlers:
+      - Restart trove-conductor container
+  trove-guestagent.conf:
+
+trove_haproxy_order: "300"
+
+trove_managed_tenant: "trove-managed-tenant"
+
+trove_public_endpoint: "http://{{ public_vip }}:{{ trove_api_port }}/v1.0/%(tenant_id)s"
+trove_internal_endpoint: "http://{{ management_vip }}:{{ trove_api_port }}/v1.0/%(tenant_id)s"
+trove_admin_endpoint: "http://{{ management_vip }}:{{ trove_api_port }}/v1.0/%(tenant_id)s"
+
+trove_endpoints:
+  - url: "{{ trove_public_endpoint }}"
+    interface: "public"
+  - url: "{{ trove_internal_endpoint }}"
+    interface: "internal"
+  - url: "{{ trove_admin_endpoint }}"
+    interface: "admin"
+
+trove_log_directory: "/var/log/{{ project_name }}"
+trove_logging_debug: "True"
+
+trove_conf:
+  default:
+    max_accepted_volume_size: "500"
+    max_instances_per_tenant: "5"
+    max_volumes_per_tenant: "100"
+    max_backups_per_tenant: "5"
+    volume_time_out: "30"
+    http_get_rate: "200"
+    http_post_rate: "200"
+    http_put_rate: "200"
+    http_delete_rate: "200"
+    http_mgmt_post_rate: "200"
+    agent_heartbeat_time: "10"
+    agent_call_low_timeout: "5"
+    agent_call_high_timeout: "150"
+    reboot_time_out: "60"
+  mysql:
+    tcp_ports: "3306"
+
+trove_taskmanager_conf:
+  default:
+    volume_time_out: "30"
+    server_delete_time_out: "480"
+    guest_info: "guest_info"
+    injected_config_location: "/etc/trove"
+
+trove_guestagent_conf:
+  default:
+    swift_container_allowed_origins: "http://*.eayun.com, https://*.eayun.com"
+    guest_log_limit: "10485760"
+
+trove_api_image: "{{ docker_registry }}/{{ eayunstack_docker_prefix }}/trove-api"
+trove_taskmanager_image: "{{ docker_registry }}/{{ eayunstack_docker_prefix }}/trove-taskmanager"
+trove_conductor_image: "{{ docker_registry }}/{{ eayunstack_docker_prefix }}/trove-conductor"
+trove_db_sync_image: "{{ docker_registry }}/{{ eayunstack_docker_prefix }}/trove-db-sync"
+
+trove_logrotate_conf:
+  rotate: "4"
+  minsize: "30M"

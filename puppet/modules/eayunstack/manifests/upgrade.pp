@@ -9,9 +9,6 @@ class eayunstack::upgrade (
   class { 'eayunstack::upgrade::ceilometer::ceilometer':
     fuel_settings => $fuel_settings,
   }
-  class { 'eayunstack::upgrade::ceph':
-    fuel_settings => $fuel_settings,
-  }
   class { 'eayunstack::upgrade::cinder':
     fuel_settings => $fuel_settings,
   }
