@@ -1,0 +1,12 @@
+- name: ensure ceph configurations
+  ini_file:
+    dest: "{{ ceph_conf_file }}"
+    section: "{{ item.0.section }}"
+    option: "{{ item.1.option }}"
+    value: "{{ item.1.value }}"
+  with_subelements:
+    - "{{ ceph_conf }}"
+    - configurations
+  when:
+    - group_names|length > 0
+    - group_names|issubset(item.1.apply_to)

@@ -1,0 +1,20 @@
+---
+- name: Migrating trove database
+  vars:
+    trove_api_container: "{{ check_trove_containers.results|selectattr('item.key', 'match', 'trove-api')|first }}"
+  kolla_docker:
+    action: "start_container"
+    detach: False
+    name: "trove_database_migrate"
+    image: "{{ trove_db_sync_image }}"
+    volumes: "{{ trove_services['trove-api']['volumes'] }}"
+    restart_policy: "never"
+  register: trove_database_migrate
+  when: trove_database.changed | bool
+        or trove_api_container.changed | bool
+  run_once: True
+  delegate_to: "{{ groups['controller'][0] }}"
+  notify:
+    - Restart trove-api container
+    - Restart trove-taskmanager container
+    - Restart trove-conductor container

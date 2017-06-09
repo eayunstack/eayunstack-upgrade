@@ -1,0 +1,10 @@
+listen trove-api
+  bind {{ management_vip }}:{{ trove_api_port }}
+  bind {{ public_vip }}:{{ trove_api_port }}
+  mode http
+  option  httpchk
+  option  httplog
+  option  httpclose
+{% for host in groups['controller'] %}
+  server {{hostvars[host]['ansible_hostname']}} {{ hostvars[host]['ansible_' + hostvars[host]['network_scheme']['roles']['management']|replace('-', '_')]['ipv4']['address'] }}:{{trove_api_port}}   check inter 10s fastinter 2s downinter 3s rise 3 fall 3
+{% endfor %}

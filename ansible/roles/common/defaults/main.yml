@@ -1,0 +1,4 @@
+---
+pkg_install:
+  - docker
+  - python-docker-py

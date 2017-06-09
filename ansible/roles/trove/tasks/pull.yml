@@ -1,0 +1,11 @@
+---
+- name: Pulling trove images
+  kolla_docker:
+    action: "pull_image"
+    image: "{{ item.value.image }}"
+  with_dict: "{{ trove_services }}"
+
+- name: Pulling trove database migration image
+  kolla_docker:
+    action: "pull_image"
+    image: "{{ trove_db_sync_image }}"

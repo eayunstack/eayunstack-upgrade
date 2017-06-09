@@ -1,0 +1,21 @@
+- name: Setup Fuel node
+  hosts: localhost
+  gather_facts: false
+
+  roles:
+    - fuel
+
+- name: Gather facts
+  hosts: all
+  roles:
+    - common
+  tasks:
+    - name: group hosts by Fuel node role
+      group_by: key={{ role }}
+
+- name: Apply roles
+  hosts: controller
+  gather_facts: false
+  roles:
+    - trove
+    - haproxy

@@ -1,0 +1,57 @@
+---
+- name: Ensuring system group exist
+  group:
+    name: trove
+    gid: "{{ trove_sys_gid }}"
+
+- name: Ensuring system user exist
+  user:
+    name: trove
+    comment: "trove Daemons"
+    uid: "{{ trove_sys_uid }}"
+    group: trove
+    groups: trove
+    home: "{{ trove_sys_homedir }}"
+    shell: "/sbin/nologin"
+ 
+- name: Ensuring config directory exist
+  file:
+    path: "{{ eayunstack_config_base }}/{{ project_name }}"
+    state: "directory"
+    recurse: yes
+
+- name: Ensuring log directory exist
+  file:
+    path: "{{ eayunstack_log_base }}/{{ project_name }}"
+    state: "directory"
+    owner: trove
+
+- name: Copy api-paste.ini
+  copy:
+    src: api-paste.ini
+    dest: "{{ eayunstack_config_base }}/{{ project_name }}/"
+
+- name: Copy trove-logrotate config
+  template:
+    src: trove-logrotate.conf.j2
+    dest: "/etc/logrotate.d/eayunstack-docker-{{ project_name }}"
+
+- name: Copying over trove conf files
+  template:
+    src: "{{ item.key }}.j2"
+    dest: "{{ eayunstack_config_base }}/{{ project_name }}/{{ item.key }}"
+  register: trove_confs
+  with_dict: "{{ trove_config_files }}"
+  notify: "{{ item.value.handlers | default([]) }}"
+
+- name: Check trove containers
+  kolla_docker:
+    action: "compare_container"
+    name: "{{ item.value.container_name }}"
+    image: "{{ item.value.image }}"
+    volumes: "{{ item.value.volumes }}"
+    restart_policy: "{{ docker_restart_policy }}"
+  with_dict: "{{ trove_services }}"
+  register: check_trove_containers
+  notify:
+    - "Restart {{ item.key }} container"
