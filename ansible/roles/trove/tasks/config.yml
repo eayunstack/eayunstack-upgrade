@@ -55,3 +55,12 @@
   register: check_trove_containers
   notify:
     - "Restart {{ item.key }} container"
+
+- name: Ensuring iptables for trove
+  iptables:
+    action: insert
+    chain: INPUT
+    protocol: tcp
+    match: multiport
+    destination_port: "{{ trove_api_port }}"
+    jump: ACCEPT
