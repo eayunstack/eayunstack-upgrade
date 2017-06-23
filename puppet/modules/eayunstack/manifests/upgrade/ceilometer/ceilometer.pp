@@ -87,6 +87,17 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       ],
     }
 
+    augeas { 'ceilometer-expire':
+      context => '/files/etc/ceilometer/ceilometer.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/ceilometer/ceilometer.conf',
+      changes => [
+        'set database/time_to_live 345600',
+      ],
+      require => Package['openstack-ceilometer-common'],
+      notify  => Exec['ceilometer-data-expire'],
+    }
+
     $systemd_services = [
       'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-collector',
       'openstack-ceilometer-notification', 'openstack-ceilometer-network',
@@ -111,6 +122,15 @@ class eayunstack::upgrade::ceilometer::ceilometer (
     service { 'openstack-ceilometer-api':
       ensure => stopped,
       enable => false,
+    }
+
+    exec {'ceilometer-data-expire':
+      command     => 'ceilometer-expirer',
+      path        => '/usr/bin',
+      user        => 'ceilometer',
+      refreshonly => true,
+      tries       => 3,
+      try_sleep   => 20,
     }
 
     Package['openstack-ceilometer-alarm'] ~>
