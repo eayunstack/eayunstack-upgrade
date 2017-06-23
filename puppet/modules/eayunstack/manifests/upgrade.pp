@@ -1,5 +1,6 @@
 class eayunstack::upgrade (
   $fuel_settings,
+  $env_settings,
 ) {
   include eayunstack::generic
 
@@ -32,6 +33,7 @@ class eayunstack::upgrade (
   }
   class { 'eayunstack::upgrade::nova':
     fuel_settings => $fuel_settings,
+    env_settings  => $env_settings,
   }
   class { 'eayunstack::upgrade::ntp':
     fuel_settings => $fuel_settings,

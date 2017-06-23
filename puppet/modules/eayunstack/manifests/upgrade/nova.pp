@@ -1,5 +1,6 @@
 class eayunstack::upgrade::nova (
   $fuel_settings,
+  $env_settings,
 ) {
   $admin_auth_url = "http://${fuel_settings['management_vip']}:35357/v2.0"
   $admin_username = 'cinder'
@@ -7,7 +8,11 @@ class eayunstack::upgrade::nova (
   $admin_tenant_name = 'services'
   # reclaim interval is 10 days.
   $reclaim_instance_interval = '864000'
-  $novnc_https_url = "https://${fuel_settings['public_vip']}:6080/vnc_auto.html"
+  if $env_settings and has_key($env_settings, 'novncproxy_base_url') {
+    $novncproxy_base_url = $env_settings['novncproxy_base_url']
+  } else {
+    $novncproxy_base_url = "https://${fuel_settings['public_vip']}:6080/vnc_auto.html"
+  }
   $quota_key_pairs = '-1'
 
   $packages = { controller => [
@@ -153,7 +158,7 @@ class eayunstack::upgrade::nova (
       lens    => 'Puppet.lns',
       incl    => '/etc/nova/nova.conf',
       changes => [
-        "set DEFAULT/novncproxy_base_url ${novnc_https_url}",
+        "set DEFAULT/novncproxy_base_url ${novncproxy_base_url}",
       ],
     }
 
