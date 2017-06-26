@@ -1,0 +1,21 @@
+---
+- name: Migrating senlin database
+  vars:
+    senlin_api_container: "{{ check_senlin_containers.results|selectattr('item.key', 'match', 'senlin-api')|first }}"
+  kolla_docker:
+    action: "start_container"
+    detach: False
+    name: "senlin_database_migrate"
+    image: "{{ senlin_base_image }}"
+    volumes: "{{ senlin_services['senlin-api']['volumes'] }}"
+    environment:
+      DAEMON: "senlin-manage"
+    restart_policy: "never"
+  register: senlin_database_migrate
+  when: senlin_database.changed | bool
+        or senlin_api_container.changed | bool
+  run_once: True
+  delegate_to: "{{ groups['controller'][0] }}"
+  notify:
+    - Restart senlin-api container
+    - Restart senlin-engine container

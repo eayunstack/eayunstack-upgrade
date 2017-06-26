@@ -1,0 +1,37 @@
+[DEFAULT]
+debug = {{ senlin_logging_debug }}
+
+log_dir = /var/log/senlin
+
+check_interval_max = {{ check_interval_max }}
+default_action_timeout = {{ default_action_timeout }}
+
+[senlin_api]
+bind_port = {{ senlin_api_port }}
+bind_host = 0.0.0.0
+
+[authentication]
+auth_url = http://{{ management_vip }}:{{ keystone_api_port }}/v3
+service_username = senlin
+service_password = {{ senlin_keystone_password }}
+service_project_name = services
+
+[database]
+connection = mysql://senlin:{{ senlin_database_password }}@{{ management_vip }}/senlin?&charset=utf8
+
+[oslo_messaging_rabbit]
+rabbit_hosts = 127.0.0.1:{{ rabbit_port}},{% for host in groups['controller']|difference([inventory_hostname]) %}{{ hostvars[host]['ansible_' + hostvars[host]['network_scheme']['roles']['management']|replace('-', '_')]['ipv4']['address'] }}:{{ rabbit_port }}{% if not loop.last %},{% endif %}{% endfor %}
+
+rabbit_userid = nova
+rabbit_password = {{ rabbit.password }}
+
+[keystone_authtoken]
+auth_uri = http://{{ management_vip }}:{{ keystone_api_port }}/v3
+identity_uri = http://{{ management_vip }}:{{ keystone_admin_port }}
+auth_version = 3
+admin_user = senlin
+admin_password = {{ senlin_keystone_password }}
+admin_tenant_name = services
+
+[oslo_messaging_notifications]
+driver = messaging

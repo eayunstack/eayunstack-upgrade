@@ -1,0 +1,53 @@
+---
+project_name: senlin
+
+senlin_sys_uid: 970
+senlin_sys_gid: 970
+senlin_sys_homedir: "/var/lib/senlin"
+
+senlin_database_name: "senlin"
+
+senlin_services:
+  senlin-api:
+    container_name: senlin_api
+    image: "{{ senlin_base_image }}"
+    volumes:
+      - "{{ senlin_sys_homedir }}:{{ senlin_sys_homedir }}"
+      - "{{ eayunstack_config_base }}/{{ project_name }}:{{ senlin_config_diretory }}:ro"
+      - "{{ timezone_path }}:/etc/localtime:ro"
+      - "{{ eayunstack_log_base }}/{{ project_name }}:{{ senlin_log_directory }}"
+  senlin-engine:
+    container_name: senlin_engine
+    image: "{{ senlin_base_image }}"
+    volumes:
+      - "{{ senlin_sys_homedir }}:{{ senlin_sys_homedir }}"
+      - "{{ eayunstack_config_base }}/{{ project_name }}:{{ senlin_config_diretory }}:ro"
+      - "{{ timezone_path }}:/etc/localtime:ro"
+      - "{{ eayunstack_log_base }}/{{ project_name }}:{{ senlin_log_directory }}"
+
+senlin_config_diretory: /etc/senlin
+senlin_config_files:
+  senlin.conf:
+    handlers:
+      - Restart senlin-api container
+      - Restart senlin-engine container
+
+senlin_public_endpoint: "http://{{ public_vip }}:{{ senlin_api_port }}"
+senlin_internal_endpoint: "http://{{ management_vip }}:{{ senlin_api_port }}"
+senlin_admin_endpoint: "http://{{ management_vip }}:{{ senlin_api_port }}"
+
+senlin_endpoints:
+  publicurl: "{{ senlin_public_endpoint }}"
+  internalurl: "{{ senlin_internal_endpoint }}"
+  adminurl: "{{ senlin_admin_endpoint }}"
+
+senlin_log_directory: "/var/log/{{ project_name }}"
+senlin_logging_debug: "True"
+check_interval_max: "300"
+default_action_timeout: "300"
+
+senlin_base_image: "{{ docker_registry }}/{{ eayunstack_docker_prefix }}/senlin-base"
+
+senlin_logrotate_conf:
+  rotate: "4"
+  minsize: "30M"

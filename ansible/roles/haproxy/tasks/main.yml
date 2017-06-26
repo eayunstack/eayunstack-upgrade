@@ -1,4 +1,10 @@
 ---
+- name: Copying over senlin haproxy conf files
+  template:
+    src: "senlin-api-haproxy.conf.j2"
+    dest: "{{ haproxy_config_base }}/{{ senlin_haproxy_order }}-senlin-api.cfg"
+  notify: Reload HAProxy
+
 - name: Copying over trove haproxy conf files
   template:
     src: "trove-api-haproxy.conf.j2"

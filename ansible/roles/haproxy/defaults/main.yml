@@ -1,2 +1,3 @@
 ---
+senlin_haproxy_order: "299"
 trove_haproxy_order: "300"

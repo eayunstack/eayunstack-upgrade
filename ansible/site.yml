@@ -18,6 +18,7 @@
   gather_facts: false
   roles:
     - trove
+    - senlin
     - haproxy
   handlers:
     - name: Save iptables rules

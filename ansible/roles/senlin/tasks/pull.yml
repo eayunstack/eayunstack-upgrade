@@ -1,0 +1,5 @@
+---
+- name: Pulling senlin images
+  kolla_docker:
+    action: "pull_image"
+    image: "{{ senlin_base_image }}"
