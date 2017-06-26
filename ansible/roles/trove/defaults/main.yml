@@ -57,12 +57,9 @@ trove_internal_endpoint: "http://{{ management_vip }}:{{ trove_api_port }}/v1.0/
 trove_admin_endpoint: "http://{{ management_vip }}:{{ trove_api_port }}/v1.0/%(tenant_id)s"
 
 trove_endpoints:
-  - url: "{{ trove_public_endpoint }}"
-    interface: "public"
-  - url: "{{ trove_internal_endpoint }}"
-    interface: "internal"
-  - url: "{{ trove_admin_endpoint }}"
-    interface: "admin"
+  publicurl: "{{ trove_public_endpoint }}"
+  internalurl: "{{ trove_internal_endpoint }}"
+  adminurl: "{{ trove_admin_endpoint }}"
 
 trove_log_directory: "/var/log/{{ project_name }}"
 trove_logging_debug: "True"

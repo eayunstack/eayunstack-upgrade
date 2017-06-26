@@ -9,4 +9,6 @@
     - configurations
   when:
     - group_names|length > 0
-    - group_names|issubset(item.1.apply_to)
+    - item.0.pre_check|bool
+    - item.0.apply_to == 'all'
+      or group_names|intersect(item.0.apply_to)|length > 0

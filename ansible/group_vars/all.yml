@@ -15,6 +15,7 @@ haproxy_config_base: "/etc/haproxy/conf.d"
 keystone_region: "RegionOne"
 keystone_api_port: "5000"
 keystone_admin_port: "35357"
+keystone_admin_endpoint_v2: "http://{{ management_vip }}:{{ keystone_admin_port }}/v2.0/"
 keystone_admin_endpoint_v3: "http://{{ management_vip }}:{{ keystone_admin_port }}/v3/"
 keystone_internal_endpoint: "http://{{ management_vip }}:{{ keystone_api_port }}/2.0/"
 

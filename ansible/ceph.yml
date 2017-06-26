@@ -32,15 +32,25 @@
         dest: "{{ fuel_facts_fetch_directory }}"
       run_once: True
       delegate_to: "{{ groups['controller'][0] }}"
-      register: fuel_facts_fetched
       when: with_controllers|bool
 
     - name: load fuel facts on obs nodes
       include_vars:
         file: "{{ fuel_facts_fetch_directory }}/{{ groups['controller'][0] }}{{ fuel_facts_file }}"
+      register: obs_load_fuel_facts
       when:
         - with_controllers|bool
         - inventory_hostname in groups['obs']
+
+    - name: set keystone variables for obs nodes
+      set_fact:
+        rgw_use_keystone: True
+        rgw_keystone_url: "http://{{ management_vip }}:{{ keystone_admin_port }}"
+        keystone_admin_token: "{{ keystone.admin_token }}"
+      when:
+        - with_controllers|bool
+        - inventory_hostname in groups['obs']
+        - obs_load_fuel_facts is defined
 
   roles:
     - { role: ceph, action: 'install_packages' }
