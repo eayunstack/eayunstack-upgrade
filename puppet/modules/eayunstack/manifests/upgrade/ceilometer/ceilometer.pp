@@ -6,11 +6,13 @@ class eayunstack::upgrade::ceilometer::ceilometer (
                               'openstack-ceilometer-common', 'python-ceilometer',
                               'openstack-ceilometer-collector', 'openstack-ceilometer-alarm',
                               'openstack-ceilometer-notification', 'openstack-ceilometer-central',
-                              'openstack-ceilometer-api',
+                              'openstack-ceilometer-api', 'python-ceilometerclient',
+                              'openstack-ceilometer-network',
                               ],
                 compute    => [
                               'openstack-ceilometer-common', 'python-ceilometer',
-                              'openstack-ceilometer-compute',
+                              'openstack-ceilometer-compute', 'python-ceilometerclient',
+                              'openstack-ceilometer-network',
                               ],
   }
 
@@ -34,6 +36,7 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       notify  => [
         Service['openstack-ceilometer-notification'], Service['openstack-ceilometer-api'],
         Service['httpd'], Service['openstack-ceilometer-central'],
+        Service['openstack-ceilometer-network'],
       ],
     }
     file { 'event_definitions.yaml':
@@ -64,6 +67,7 @@ class eayunstack::upgrade::ceilometer::ceilometer (
         Service['openstack-ceilometer-api'],
         Service['openstack-ceilometer-central'],
         Service['openstack-ceilometer-notification'],
+        Service['openstack-ceilometer-network'],
         Service['httpd'],
       ],
     }
@@ -83,9 +87,20 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       ],
     }
 
+    augeas { 'ceilometer-expire':
+      context => '/files/etc/ceilometer/ceilometer.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/ceilometer/ceilometer.conf',
+      changes => [
+        'set database/time_to_live 345600',
+      ],
+      require => Package['openstack-ceilometer-common'],
+      notify  => Exec['ceilometer-data-expire'],
+    }
+
     $systemd_services = [
       'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-collector',
-      'openstack-ceilometer-notification',
+      'openstack-ceilometer-notification', 'openstack-ceilometer-network',
     ]
 
     service { $systemd_services:
@@ -109,12 +124,23 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       enable => false,
     }
 
+    exec {'ceilometer-data-expire':
+      command     => 'ceilometer-expirer',
+      path        => '/usr/bin',
+      user        => 'ceilometer',
+      refreshonly => true,
+      tries       => 3,
+      try_sleep   => 20,
+    }
+
     Package['openstack-ceilometer-alarm'] ~>
       Service['openstack-ceilometer-alarm-notifier']
     Package['openstack-ceilometer-notification'] ~>
       Service['openstack-ceilometer-notification']
     Package['openstack-ceilometer-collector'] ~>
       Service['openstack-ceilometer-collector']
+    Package['openstack-ceilometer-network'] ~>
+      Service['openstack-ceilometer-network']
     Package['openstack-ceilometer-api'] ~>
       Service['openstack-ceilometer-api']
     Package['openstack-ceilometer-central'] ~>
@@ -134,7 +160,7 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       ensure => latest,
     }
     $systemd_services = [
-      'openstack-ceilometer-compute',
+      'openstack-ceilometer-compute', 'openstack-ceilometer-network',
     ]
     service { $systemd_services:
       ensure => running,
@@ -147,7 +173,10 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       source  => 'puppet:///modules/eayunstack/pipeline.yaml',
       group   => 'ceilometer',
       require => Package['openstack-ceilometer-common'],
-      notify  => Service['openstack-ceilometer-compute'],
+      notify  => [
+        Service['openstack-ceilometer-compute'],
+        Service['openstack-ceilometer-network'],
+      ],
     }
 
     augeas { 'ceilometer-pipeline':
@@ -161,10 +190,15 @@ class eayunstack::upgrade::ceilometer::ceilometer (
         Package['openstack-ceilometer-common'],
         File['pipeline.yaml'],
       ],
-      notify  => Service['openstack-ceilometer-compute'],
+      notify  => [
+        Service['openstack-ceilometer-compute'],
+        Service['openstack-ceilometer-network'],
+      ],
     }
 
     Package['openstack-ceilometer-compute'] ~>
       Service['openstack-ceilometer-compute']
+    Package['openstack-ceilometer-network'] ~>
+      Service['openstack-ceilometer-network']
   }
 }
