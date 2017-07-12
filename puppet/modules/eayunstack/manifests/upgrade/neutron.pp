@@ -74,7 +74,7 @@ class eayunstack::upgrade::neutron (
       lens    => 'Puppet.lns',
       incl    => '/etc/neutron/metering_agent.ini',
       changes => [
-          'set DEFAULT/debug True',
+          'set DEFAULT/debug False',
           'set DEFAULT/driver neutron.services.metering.drivers.iptables.es_iptables_driver.EsIptablesMeteringDriver',
           'set DEFAULT/measure_interval 30',
           'set DEFAULT/report_interval 50',
