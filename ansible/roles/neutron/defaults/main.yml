@@ -1,0 +1,2 @@
+neutron_conf_file: "/etc/neutron/neutron.conf"
+l3_agent_failover_key: "allow_automatic_l3agent_failover"

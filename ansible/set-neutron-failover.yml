@@ -1,0 +1,9 @@
+- name: set neutron agents failover
+
+  hosts: controller
+
+  serial: 1
+  become: True
+
+  roles:
+    - { role: neutron, action: 'set_neutron_agents_failover' }

@@ -1,0 +1,16 @@
+- name: set neutron agents failover in conf
+  ini_file:
+    dest: "{{ neutron_conf_file }}"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - section: 'DEFAULT'
+      option: "{{ l3_agent_failover_key }}"
+      value: "{{ neutron_agents_failover }}"
+  notify:
+    - restart neutron-server
+  when:
+    - neutron_agents_failover is defined
+    - neutron_agents_failover == 'True' or neutron_agents_failover == 'False'
+    - action == 'set_neutron_agents_failover'
