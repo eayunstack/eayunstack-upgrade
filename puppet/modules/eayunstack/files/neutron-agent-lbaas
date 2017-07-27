@@ -44,6 +44,7 @@ OCF_RESKEY_pid_default="${HA_RSCTMP}/${__SCRIPT_NAME}/${__SCRIPT_NAME}.pid"
 OCF_RESKEY_os_auth_url_default="http://localhost:5000/v2.0"
 OCF_RESKEY_log_file_default="/var/log/neutron/lbaas-agent.log"
 OCF_RESKEY_debug_default='false'
+OCF_RESKEY_auto_reschedule_pools_default=false
 
 : ${OCF_RESKEY_binary=${OCF_RESKEY_binary_default}}
 : ${OCF_RESKEY_dist_config=${OCF_RESKEY_dist_config_default}}
@@ -55,6 +56,7 @@ OCF_RESKEY_debug_default='false'
 : ${OCF_RESKEY_log_file=${OCF_RESKEY_log_file_default}}
 : ${OCF_RESKEY_debug=${OCF_RESKEY_debug_default}}
 : ${OCF_RESKEY_os_auth_url=${OCF_RESKEY_os_auth_url_default}}
+: ${OCF_RESKEY_auto_reschedule_pools=${OCF_RESKEY_auto_reschedule_pools_default}}
 
 #######################################################################
 
@@ -175,6 +177,14 @@ The debug flag for OpenStack Neutron LBaaS Agent Service (${OCF_RESKEY_binary}) 
 </longdesc>
 <shortdesc lang="en">OpenStack Neutron LBaaS Agent Service (${OCF_RESKEY_binary}) debug flag</shortdesc>
 <content type="string" default="${OCF_RESKEY_debug_default}" />
+</parameter>
+
+<parameter name="auto_reschedule_pools" unique="0" required="0">
+<longdesc lang="en">
+Flag to set whether pools auto rescheduling is enabled when agent stops.
+</longdesc>
+<shortdesc lang="en">OpenStack Neutron LBaaS Agent Service (${OCF_RESKEY_binary}) pools auto rescheduling flag</shortdesc>
+<content type="boolean" default="${OCF_RESKEY_auto_reschedule_pools_default}" />
 </parameter>
 
 </parameters>
@@ -461,8 +471,10 @@ neutron_lbaas_agent_stop() {
     clean_up
     sleep 1
     clean_up_namespace
-    # reschedule to alive lbaas agent
-    q-agent-cleanup.py --agent=lbaas --reschedule --remove-self ${AUTH_TAIL} 2>&1 >> /var/log/neutron/rescheduling.log &
+    if ! ocf_is_true "$OCF_RESKEY_auto_reschedule_pools" ; then
+        # reschedule to alive lbaas agent
+        q-agent-cleanup.py --agent=lbaas --reschedule --remove-self ${AUTH_TAIL} 2>&1 >> /var/log/neutron/rescheduling.log &
+    fi
 
     ocf_log info "OpenStack Neutron LBaaS agent (${OCF_RESKEY_binary}) stopped"
 
