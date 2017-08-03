@@ -50,6 +50,10 @@ timezone_path: "/usr/share/zoneinfo/Asia/Shanghai"
 mon_group_name: "controller"
 osd_group_name: "ceph-osd"
 
+# PAAS network
+paas_network_region: "RegionPaaS"
+paas_network_nsip: "100.64.255.253"
+
 # EayunOBS
 eayunobs_frontend_port: "80"
 eayunobs_backend_port: "9090"
