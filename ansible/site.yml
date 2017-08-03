@@ -19,3 +19,7 @@
   roles:
     - trove
     - haproxy
+  handlers:
+    - name: Save iptables rules
+      shell: |
+        /usr/libexec/iptables/iptables.init save
