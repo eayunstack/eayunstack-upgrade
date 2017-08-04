@@ -53,7 +53,7 @@
         - obs_load_fuel_facts is defined
 
   roles:
-    - { role: ceph, action: 'install_packages' }
+    - { role: ceph, action: 'install_packages', when: not force_restart_ceph|default('false')|bool }
 
 - name: restart ceph mons
 
