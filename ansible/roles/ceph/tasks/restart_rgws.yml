@@ -1,3 +1,11 @@
+- name: ban pcs httpd resource
+  shell: |
+    pcs resource show p_httpd-clone && pcs resource ban p_httpd || /bin/true
+
+- name: backup httpd ceph-radosgw config
+  shell: |
+      [ -f {{ rgw_httpd_conf }} ] && mv {{ rgw_httpd_conf }} {{ rgw_httpd_conf }}.bak || /bin/true
+
 - name: restart ceph rgw
   service:
     name: radosgw
