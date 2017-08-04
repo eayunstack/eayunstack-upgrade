@@ -49,3 +49,7 @@ timezone_path: "/usr/share/zoneinfo/Asia/Shanghai"
 # Ceph
 mon_group_name: "controller"
 osd_group_name: "ceph-osd"
+
+# EayunOBS
+eayunobs_frontend_port: "80"
+eayunobs_backend_port: "9090"
