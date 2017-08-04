@@ -9,8 +9,10 @@ swift_container_allowed_origins = {{ trove_guestagent_conf.default.swift_contain
 
 guest_log_limit = {{ trove_guestagent_conf.default.guest_log_limit }}
 
+os_region_name = {{ paas_network_region }}
+
 [oslo_messaging_rabbit]
-rabbit_hosts = {% if trove_guestagent_rabbit_hosts|default([])|length > 0 %}{{ trove_guestagent_rabbit_hosts|join(',') }}{% else %}{% for host in groups['controller'] %}{{ hostvars[host]['ansible_' + hostvars[host]['network_scheme']['roles']['ex']|replace('-', '_')]['ipv4']['address'] }}:{{ rabbit_port }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}
+rabbit_hosts = {% if trove_guestagent_rabbit_hosts|default([])|length > 0 %}{% set num_rabbit_hosts = trove_guestagent_rabbit_hosts|length %}{% else %}{% set num_rabbit_hosts = (groups['controller']|length) %}{% endif %}{% for _ in range(num_rabbit_hosts) %}{{ paas_network_nsip }}:{{ rabbit_port_start|int + loop.index0 }}{% if not loop.last %},{% endif %}{% endfor %}
 
 rabbit_userid = nova
 rabbit_password = {{ rabbit.password }}
@@ -23,3 +25,6 @@ topics = notifications,monitor
 [mysql]
 replication_strategy = MysqlBinlogReplication
 replication_namespace = trove.guestagent.strategies.replication.mysql_binlog
+
+[eayun_paas]
+net_mappings = {% if trove_guestagent_rabbit_hosts|default([])|length > 0 %}{% for host in trove_guestagent_rabbit_hosts %}{{ paas_network_nsip }}:{{ rabbit_port_start|int + loop.index0 }}-{{ host }},{% endfor %}{% else %}{% for host in groups['controller'] %}{{ paas_network_nsip }}:{{ rabbit_port_start|int + loop.index0 }}-{{ hostvars[host]['ansible_' + hostvars[host]['network_scheme']['roles']['management']|replace('-', '_')]['ipv4']['address'] }}:{{ rabbit_port }},{% endfor %}{% endif %}{{ paas_network_nsip }}:{{ eayunobs_frontend_port }}-{{ eayunobs_host }}:{{ eayunobs_frontend_port }}
