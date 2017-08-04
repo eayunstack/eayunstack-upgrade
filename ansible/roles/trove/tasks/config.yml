@@ -64,3 +64,4 @@
     match: multiport
     destination_port: "{{ trove_api_port }}"
     jump: ACCEPT
+  notify: "Save iptables rules"
