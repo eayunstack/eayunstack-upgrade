@@ -3,4 +3,4 @@ osd_group_name: "obs"
 rgw_group_name: "obs"
 
 eayunobs_haproxy_nb: "12"
-eayunobs_haproxy_maxconn: "4000"
+eayunobs_haproxy_maxconn: "3000"
