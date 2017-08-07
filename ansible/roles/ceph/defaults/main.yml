@@ -30,6 +30,10 @@ keystone_token_cache_size: "500"
 keystone_revocation_interval: "500"
 rgw_s3_use_keystone: "true"
 
+rgw_use_civetweb: "true"
+rgw_civetweb_num_threads: "{{ eayunobs_haproxy_nb|int * eayunobs_haproxy_maxconn|int / groups['obs']|length }}"
+rgw_httpd_conf: "/etc/httpd/conf.d/rgw.conf"
+
 ceph_conf:
   - section: "global"
     pre_check: "{{ rgw_use_keystone|bool }}"
@@ -48,3 +52,10 @@ ceph_conf:
         value: "{{ keystone_revocation_interval }}"
       - option: "rgw s3 auth use keystone"
         value: "{{ rgw_s3_use_keystone }}"
+  - section: "global"
+    pre_check: "{{ rgw_use_civetweb|bool }}"
+    apply_to:
+      - "{{ rgw_group_name }}"
+    configurations:
+      - option: "rgw frontends"
+        value: "\"civetweb port={{ eayunobs_backend_port }} num_threads={{ rgw_civetweb_num_threads|int }}\""

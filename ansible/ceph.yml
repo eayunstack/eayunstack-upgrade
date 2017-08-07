@@ -53,7 +53,7 @@
         - obs_load_fuel_facts is defined
 
   roles:
-    - { role: ceph, action: 'install_packages' }
+    - { role: ceph, action: 'install_packages', when: not force_restart_ceph|default('false')|bool }
 
 - name: restart ceph mons
 
@@ -97,8 +97,29 @@
   serial: 1
   become: True
 
+  pre_tasks:
+    - name: unmanage pcs ceph-radosgw
+      shell: |
+        pcs resource unmanage p_ceph_rgw
+      run_once: True
+      delegate_to: "{{ groups['obs'][0] }}"
+
   roles:
     - { role: ceph, action: 'restart_rgws' }
+
+  tasks:
+    - name: manage pcs ceph-radosgw
+      shell: |
+        pcs resource manage p_ceph_rgw
+      run_once: True
+      delegate_to: "{{ groups['obs'][0] }}"
+
+    - name: delete pcs httpd resource
+      shell: |
+        pcs resource show p_httpd-clone && pcs resource delete p_httpd-clone || /bin/true
+      run_once: True
+      delegate_to: "{{ groups['obs'][0] }}"
+
 
 - name: ensure ceph auth and restart related services
 
