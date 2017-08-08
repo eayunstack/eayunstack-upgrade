@@ -1,9 +1,9 @@
 ---
 - name: install packages on Fuel
-  package:
+  yum:
     name: "{{ item }}"
     state: latest
-    use: yum
+    update_cache: yes
   with_items: "{{ packages_needed_on_fuel }}"
 
 - name: get list of docker images
