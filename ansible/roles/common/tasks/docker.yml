@@ -1,8 +1,9 @@
 ---
 - name: install packages
-  package:
+  yum:
     name: "{{ item }}"
     state: latest
+    update_cache: yes
   with_items: "{{ pkg_install }}"
 
 - name: Ensure docker service directory exists
