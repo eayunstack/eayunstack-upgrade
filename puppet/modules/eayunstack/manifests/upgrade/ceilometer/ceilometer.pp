@@ -98,19 +98,29 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       notify  => Exec['ceilometer-data-expire'],
     }
 
-    $systemd_services = [
-      'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-collector',
-      'openstack-ceilometer-notification', 'openstack-ceilometer-network',
-    ]
+
+    if $fuel_settings['deployment_mode'] == 'ha_compact' {
+      $systemd_services = [
+        'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-collector',
+        'openstack-ceilometer-notification', 'openstack-ceilometer-network',
+      ]
+      $pcs_services = [
+        'openstack-ceilometer-central', 'openstack-ceilometer-alarm-evaluator',
+      ]
+    } else {
+      $systemd_services = [
+        'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-collector',
+        'openstack-ceilometer-notification', 'openstack-ceilometer-network',
+        'openstack-ceilometer-central', 'openstack-ceilometer-alarm-evaluator',
+      ]
+      $pcs_services = []
+    }
 
     service { $systemd_services:
       ensure => running,
       enable => true,
     }
 
-    $pcs_services = [
-      'openstack-ceilometer-central', 'openstack-ceilometer-alarm-evaluator',
-    ]
     service { $pcs_services:
       ensure     => running,
       enable     => true,
