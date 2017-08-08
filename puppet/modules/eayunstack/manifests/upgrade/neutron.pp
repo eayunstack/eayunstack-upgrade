@@ -17,18 +17,28 @@ class eayunstack::upgrade::neutron (
 
     # Services
 
-    $systemd_services = [
-      'neutron-server', 'neutron-qos-agent', 'neutron-metering-agent',
-    ]
+    if $fuel_settings['deployment_mode'] == 'ha_compact' {
+      $systemd_services = [
+        'neutron-server', 'neutron-qos-agent', 'neutron-metering-agent',
+      ]
+      $pcs_services = [
+        'neutron-openvswitch-agent', 'neutron-l3-agent', 'neutron-dhcp-agent',
+        'neutron-metadata-agent', 'neutron-lbaas-agent',
+      ]
+    } else {
+      $systemd_services = [
+        'neutron-server', 'neutron-qos-agent', 'neutron-metering-agent',
+        'neutron-openvswitch-agent', 'neutron-l3-agent', 'neutron-dhcp-agent',
+        'neutron-metadata-agent', 'neutron-lbaas-agent',
+      ]
+      $pcs_services = []
+    }
+
     service { $systemd_services:
       ensure => running,
       enable => true,
     }
 
-    $pcs_services = [
-      'neutron-openvswitch-agent', 'neutron-l3-agent', 'neutron-dhcp-agent',
-      'neutron-metadata-agent', 'neutron-lbaas-agent',
-    ]
     service { $pcs_services:
       ensure     => running,
       enable     => true,
@@ -156,14 +166,16 @@ class eayunstack::upgrade::neutron (
       source => 'puppet:///modules/eayunstack/q-agent-cleanup.py',
     }
 
-    file { 'replace-ocf-neutron-agent-lbaas':
-      ensure => file,
-      path   => '/usr/lib/ocf/resource.d/eayun/neutron-agent-lbaas',
-      backup => '.bak',
-      mode   => '0755',
-      owner  => 'root',
-      group  => 'root',
-      source => 'puppet:///modules/eayunstack/neutron-agent-lbaas',
+    if $fuel_settings['deployment_mode'] == 'ha_compact' {
+      file { 'replace-ocf-neutron-agent-lbaas':
+        ensure => file,
+        path   => '/usr/lib/ocf/resource.d/eayun/neutron-agent-lbaas',
+        backup => '.bak',
+        mode   => '0755',
+        owner  => 'root',
+        group  => 'root',
+        source => 'puppet:///modules/eayunstack/neutron-agent-lbaas',
+      }
     }
 
     # Ordering & Relationship

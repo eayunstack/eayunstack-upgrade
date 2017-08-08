@@ -16,8 +16,10 @@ class eayunstack::upgrade (
   class { 'eayunstack::upgrade::glance':
     fuel_settings => $fuel_settings,
   }
-  class { 'eayunstack::upgrade::haproxy::haproxy':
-    fuel_settings => $fuel_settings,
+  if $fuel_settings['deployment_mode'] == 'ha_compact' {
+    class { 'eayunstack::upgrade::haproxy::haproxy':
+      fuel_settings => $fuel_settings,
+    }
   }
   class { 'eayunstack::upgrade::heat':
     fuel_settings => $fuel_settings,

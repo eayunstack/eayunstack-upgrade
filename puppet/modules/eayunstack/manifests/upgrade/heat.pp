@@ -4,13 +4,21 @@ class eayunstack::upgrade::heat (
 
   if $::eayunstack_node_role == 'controller' {
 
-    $systemd_services = [
-      'openstack-heat-api-cfn', 'openstack-heat-api-cloudwatch',
-      'openstack-heat-api'
-    ]
-    $pcs_services = [
-      'openstack-heat-engine',
-    ]
+    if $fuel_settings['deployment_mode'] == 'ha_compact' {
+      $systemd_services = [
+        'openstack-heat-api-cfn', 'openstack-heat-api-cloudwatch',
+        'openstack-heat-api'
+      ]
+      $pcs_services = [
+        'openstack-heat-engine',
+      ]
+    } else {
+      $systemd_services = [
+        'openstack-heat-api-cfn', 'openstack-heat-api-cloudwatch',
+        'openstack-heat-api', 'openstack-heat-engine',
+      ]
+      $pcs_services = []
+    }
 
     service { $systemd_services:
       ensure => running,
