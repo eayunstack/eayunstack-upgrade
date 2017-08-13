@@ -14,6 +14,7 @@ class eayunstack::upgrade::nova (
     $novncproxy_base_url = "https://${fuel_settings['public_vip']}:6080/vnc_auto.html"
   }
   $quota_key_pairs = '-1'
+  $allow_duplicate_networks = 'true'
 
   $packages = { controller => [
                               'python-nova', 'openstack-nova-objectstore', 'openstack-nova-api',
@@ -77,11 +78,21 @@ class eayunstack::upgrade::nova (
       ],
     }
 
+    augeas { 'set_allow_duplicate_networks':
+      context => '/files/etc/nova/nova.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/nova/nova.conf',
+      changes => [
+        "set neutron/allow_duplicate_networks ${allow_duplicate_networks}",
+      ],
+    }
+
     Package['python-nova'] {
       notify => [
         Augeas['add_cinder_admin_info'],
         Augeas['set_reclaim_instance_interval'],
         Augeas['resize_quota_key_pairs'],
+        Augeas['set_allow_duplicate_networks'],
       ],
     }
     Augeas['add_cinder_admin_info'] {
@@ -97,6 +108,11 @@ class eayunstack::upgrade::nova (
       ],
     }
     Augeas['resize_quota_key_pairs'] {
+      notify => [
+        Service['openstack-nova-api'],
+      ],
+    }
+    Augeas['set_allow_duplicate_networks'] {
       notify => [
         Service['openstack-nova-api'],
       ],
