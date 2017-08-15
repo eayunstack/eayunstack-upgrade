@@ -114,13 +114,13 @@
       shell: |
         pcs resource manage p_ceph_rgw
       run_once: True
-      delegate_to: "{{ groups['obs'][0] }}"
+      delegate_to: "{{ groups['obs'][-1] }}"
 
     - name: delete pcs httpd resource
       shell: |
         pcs resource show p_httpd-clone && pcs resource delete p_httpd-clone || /bin/true
       run_once: True
-      delegate_to: "{{ groups['obs'][0] }}"
+      delegate_to: "{{ groups['obs'][-1] }}"
 
 
 - name: ensure ceph auth and restart related services
