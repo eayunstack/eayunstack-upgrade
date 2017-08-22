@@ -282,6 +282,15 @@ class eayunstack::upgrade::neutron (
       enable => true,
     }
 
+    # Executions
+
+    exec { 'enable-stp-on-int-br':
+      command  => 'ovs-vsctl set bridge br-int stp_enable=true',
+      path     => '/usr/bin',
+      provider => shell,
+      onlyif   => 'test `ovs-vsctl get bridge br-int stp_enable` = false',
+    }
+
     # Augeases
 
     augeas { 'set-openflow-ew-dvr':
