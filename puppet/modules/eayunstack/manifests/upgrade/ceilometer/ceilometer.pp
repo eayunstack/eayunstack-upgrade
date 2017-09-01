@@ -207,6 +207,17 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       ],
     }
 
+    augeas { 'cluster-meter':
+      context => '/files/etc/ceilometer/ceilometer.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/ceilometer/ceilometer.conf',
+      changes => [
+        'set DEFAULT/reserved_metadata_keys cluster_id',
+      ],
+      require => Package['openstack-ceilometer-common'],
+      notify  => Service['openstack-ceilometer-compute'],
+    }
+
     Package['openstack-ceilometer-compute'] ~>
       Service['openstack-ceilometer-compute']
     Package['openstack-ceilometer-network'] ~>
