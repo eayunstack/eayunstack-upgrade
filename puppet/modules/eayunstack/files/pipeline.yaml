@@ -23,6 +23,8 @@ sources:
       meters:
           - "disk.read.bytes"
           - "disk.write.bytes"
+          - "disk.device.read.bytes"
+          - "disk.device.write.bytes"
       sinks:
           - disk_bill_sink
     - name: bandwidth_bill_source
@@ -66,11 +68,11 @@ sinks:
             parameters:
                 source:
                     map_from:
-                        name: "disk\\.(read|write)\\.bytes"
+                        name: "(disk\\.device|disk)\\.(read|write)\\.bytes"
                         unit: "(B|request)"
                 target:
                     map_to:
-                        name: "disk.\\1.bytes.rate"
+                        name: "\\1.\\2.bytes.rate"
                         unit: "\\1/s"
                     type: "gauge"
       publishers:
