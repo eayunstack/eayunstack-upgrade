@@ -93,7 +93,7 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       lens    => 'Puppet.lns',
       incl    => '/etc/ceilometer/ceilometer.conf',
       changes => [
-        'set database/time_to_live 345600',
+        'set database/time_to_live 172800',
       ],
       require => Package['openstack-ceilometer-common'],
       notify  => Exec['ceilometer-data-expire'],
