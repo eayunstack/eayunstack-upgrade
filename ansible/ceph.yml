@@ -17,6 +17,7 @@
 
   vars:
     with_controllers: "{{ ('controller' in groups) and (groups['controller']|length > 0) }}"
+    first_controller_facts: "{{ fuel_facts_fetch_directory }}/{{ groups['controller'][0] }}{{ fuel_facts_file }}"
   hosts:
     - controller
     - ceph-osd
@@ -29,14 +30,15 @@
     - name: fetch fuel facts from the first controller
       fetch:
         src: "{{ fuel_facts_file }}"
-        dest: "{{ fuel_facts_fetch_directory }}"
+        dest: "{{ first_controller_facts }}"
+        flat: "yes"
       run_once: True
       delegate_to: "{{ groups['controller'][0] }}"
       when: with_controllers|bool
 
     - name: load fuel facts on obs nodes
       include_vars:
-        file: "{{ fuel_facts_fetch_directory }}/{{ groups['controller'][0] }}{{ fuel_facts_file }}"
+        file: "{{ first_controller_facts }}"
       register: obs_load_fuel_facts
       when:
         - with_controllers|bool
@@ -101,8 +103,7 @@
     - name: unmanage pcs ceph-radosgw
       shell: |
         pcs resource unmanage p_ceph_rgw
-      run_once: True
-      delegate_to: "{{ groups['obs'][0] }}"
+      when: inventory_hostname == groups['obs'][0]
 
   roles:
     - { role: ceph, action: 'restart_rgws' }
@@ -111,14 +112,12 @@
     - name: manage pcs ceph-radosgw
       shell: |
         pcs resource manage p_ceph_rgw
-      run_once: True
-      delegate_to: "{{ groups['obs'][0] }}"
+      when: inventory_hostname == groups['obs'][-1]
 
     - name: delete pcs httpd resource
       shell: |
         pcs resource show p_httpd-clone && pcs resource delete p_httpd-clone || /bin/true
-      run_once: True
-      delegate_to: "{{ groups['obs'][0] }}"
+      when: inventory_hostname == groups['obs'][-1]
 
 
 - name: ensure ceph auth and restart related services
@@ -147,5 +146,4 @@
         user: client.compute
         pool: images
         caps: rwx
-      run_once: True
-      delegate_to: "{{ groups['controller'][0] }}"
+      when: inventory_hostname == groups['controller'][0]

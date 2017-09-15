@@ -249,7 +249,7 @@ class ManageKeystoneV2Endpoint(object):
                 delete_existed = True
 
         if delete_existed:
-            result = self.keystone.endpoints.delete(existed_endpoint)
+            result = self.keystone.endpoints.delete(existed_endpoint.id)
             if result[0].status_code != 204:
                 self.module.fail()
 

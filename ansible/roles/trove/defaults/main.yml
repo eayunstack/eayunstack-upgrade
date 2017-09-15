@@ -56,10 +56,17 @@ trove_public_endpoint: "http://{{ public_vip }}:{{ trove_api_port }}/v1.0/%(tena
 trove_internal_endpoint: "http://{{ management_vip }}:{{ trove_api_port }}/v1.0/%(tenant_id)s"
 trove_admin_endpoint: "http://{{ management_vip }}:{{ trove_api_port }}/v1.0/%(tenant_id)s"
 
+eayunobs_paas_endpoint: "http://{{ paas_network_nsip }}:{{ eayunobs_frontend_port }}/swift/v1"
+
 trove_endpoints:
   publicurl: "{{ trove_public_endpoint }}"
   internalurl: "{{ trove_internal_endpoint }}"
   adminurl: "{{ trove_admin_endpoint }}"
+
+eayunobs_paas_endpoints:
+  publicurl: "{{ eayunobs_paas_endpoint }}"
+  internalurl: "{{ eayunobs_paas_endpoint }}"
+  adminurl: "{{ eayunobs_paas_endpoint }}"
 
 trove_log_directory: "/var/log/{{ project_name }}"
 trove_logging_debug: "True"
@@ -103,3 +110,5 @@ trove_db_sync_image: "{{ docker_registry }}/{{ eayunstack_docker_prefix }}/trove
 trove_logrotate_conf:
   rotate: "4"
   minsize: "30M"
+
+rabbit_port_start: "50608"

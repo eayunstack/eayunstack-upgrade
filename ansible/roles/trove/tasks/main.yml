@@ -19,6 +19,16 @@
     - { command: 'ensure_user_role', tenant: "{{ trove_managed_tenant }}", role: 'admin' }
     - { command: 'ensure_service', service_name: 'trove', service_type: 'database', description: 'Trove Database Service' }
 
+- name: ensure object storage endpoint for PaaS network
+  run_once: True
+  keystone_v2_endpoint:
+    region_name: "{{ paas_network_region }}"
+    endpoint: "{{ keystone_admin_endpoint_v2 }}"
+    token: "{{ keystone.admin_token }}"
+    service_name: "swift"
+    service_type: "object-store"
+    endpoint_dict: "{{ eayunobs_paas_endpoints }}"
+
 - name: ensure trove endpoint
   run_once: True
   keystone_v2_endpoint:

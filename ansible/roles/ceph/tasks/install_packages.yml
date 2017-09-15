@@ -1,22 +1,25 @@
 ---
 - name: install ceph common packages
-  package:
+  yum:
     name: "{{ item }}"
     state: "{{ (downgrade_ceph|default('false')|bool) | ternary('present', 'latest') }}"
+    update_cache: "{{ (downgrade_ceph|default('false')|bool) | ternary('no', 'yes') }}"
   with_items: "{{ ceph_common_packages }}"
   register: install_ceph_common
 
 - name: install ceph library packages
-  package:
+  yum:
     name: "{{ item }}"
     state: "{{ (downgrade_ceph|default('false')|bool) | ternary('present', 'latest') }}"
+    update_cache: "{{ (downgrade_ceph|default('false')|bool) | ternary('no', 'yes') }}"
   with_items: "{{ ceph_lib_packages }}"
   register: install_ceph_lib
 
 - name: install ceph rados gateway
-  package:
+  yum:
     name: "{{ item }}"
     state: "{{ (downgrade_ceph|default('false')|bool) | ternary('present', 'latest') }}"
+    update_cache: "{{ (downgrade_ceph|default('false')|bool) | ternary('no', 'yes') }}"
   with_items: "{{ ceph_rgw_packages }}"
   when: (groups[rgw_group_name] is defined
          and inventory_hostname in groups[rgw_group_name])

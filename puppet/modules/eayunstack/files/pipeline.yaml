@@ -22,37 +22,26 @@ sources:
       interval: 60
       meters:
           - "disk.read.bytes"
-          - "disk.read.requests"
           - "disk.write.bytes"
-          - "disk.write.requests"
       sinks:
           - disk_bill_sink
-    - name: network_bill_source
-      interval: 60
-      meters:
-          - "network.incoming.bytes"
-          - "network.incoming.packets"
-          - "network.outgoing.bytes"
-          - "network.outgoing.packets"
-      sinks:
-          - network_bill_sink
     - name: bandwidth_bill_source
       interval: 60
       meters:
           - "bandwidth"
       sinks:
           - meter_sink
-    - name: memory_source
-      interval: 600
-      meters:
-          - "memory"
-      sinks:
-          - meter_sink
     - name: es_network_source
       interval: 60
       meters:
-           - "network.es.port.*"
-           - "network.services.es.*"
+           - "network.es.port.incoming.internal.bytes"
+           - "network.es.port.incoming.external.bytes"
+           - "network.es.port.outgoing.internal.bytes"
+           - "network.es.port.outgoing.external.bytes"
+           - "network.services.es.lb.incoming.bytes"
+           - "network.services.es.lb.outgoing.bytes"
+           - "network.services.es.lb.total.connections"
+           - "network.services.es.lb.http.*"
       sinks:
           - meter_sink
 sinks:
@@ -77,26 +66,11 @@ sinks:
             parameters:
                 source:
                     map_from:
-                        name: "disk\\.(read|write)\\.(bytes|requests)"
+                        name: "disk\\.(read|write)\\.bytes"
                         unit: "(B|request)"
                 target:
                     map_to:
-                        name: "disk.\\1.\\2.rate"
-                        unit: "\\1/s"
-                    type: "gauge"
-      publishers:
-          - notifier://
-    - name: network_bill_sink
-      transformers:
-          - name: "rate_of_change"
-            parameters:
-                source:
-                   map_from:
-                       name: "network\\.(incoming|outgoing)\\.(bytes|packets)"
-                       unit: "(B|packet)"
-                target:
-                    map_to:
-                        name: "network.\\1.\\2.rate"
+                        name: "disk.\\1.bytes.rate"
                         unit: "\\1/s"
                     type: "gauge"
       publishers:

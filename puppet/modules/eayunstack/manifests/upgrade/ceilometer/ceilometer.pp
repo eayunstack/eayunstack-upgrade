@@ -92,25 +92,35 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       lens    => 'Puppet.lns',
       incl    => '/etc/ceilometer/ceilometer.conf',
       changes => [
-        'set database/time_to_live 345600',
+        'set database/time_to_live 172800',
       ],
       require => Package['openstack-ceilometer-common'],
       notify  => Exec['ceilometer-data-expire'],
     }
 
-    $systemd_services = [
-      'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-collector',
-      'openstack-ceilometer-notification', 'openstack-ceilometer-network',
-    ]
+
+    if $fuel_settings['deployment_mode'] == 'ha_compact' {
+      $systemd_services = [
+        'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-collector',
+        'openstack-ceilometer-notification', 'openstack-ceilometer-network',
+      ]
+      $pcs_services = [
+        'openstack-ceilometer-central', 'openstack-ceilometer-alarm-evaluator',
+      ]
+    } else {
+      $systemd_services = [
+        'openstack-ceilometer-alarm-notifier', 'openstack-ceilometer-collector',
+        'openstack-ceilometer-notification', 'openstack-ceilometer-network',
+        'openstack-ceilometer-central', 'openstack-ceilometer-alarm-evaluator',
+      ]
+      $pcs_services = []
+    }
 
     service { $systemd_services:
       ensure => running,
       enable => true,
     }
 
-    $pcs_services = [
-      'openstack-ceilometer-central', 'openstack-ceilometer-alarm-evaluator',
-    ]
     service { $pcs_services:
       ensure     => running,
       enable     => true,

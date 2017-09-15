@@ -596,20 +596,16 @@ class DockerWorker(object):
     def recreate_or_restart_container(self):
         self.changed = True
         container = self.check_container()
-        # get config_strategy from env
-        environment = self.params.get('environment')
-        config_strategy = environment.get('KOLLA_CONFIG_STRATEGY')
 
         if not container:
             self.start_container()
             return
-        # If config_strategy is COPY_ONCE or container's parameters are
-        # changed, try to start a new one.
-        if config_strategy == 'COPY_ONCE' or self.check_container_differs():
+        # If container has change, try to start a new one.
+        if self.check_container_differs():
             self.stop_container()
             self.remove_container()
             self.start_container()
-        elif config_strategy == 'COPY_ALWAYS':
+        else:
             self.restart_container()
 
     def start_container(self):
