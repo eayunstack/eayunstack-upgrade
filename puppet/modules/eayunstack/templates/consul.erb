@@ -5,12 +5,12 @@
         "node_name": "<%= @host_name%>",
         <% if @eayunstack_node_role == 'controller'%>
         "server": true,
-        "bootstrap_expect": 3,
+        "bootstrap_expect": <%= @bootstrap_expect%>,
         <% end %>
         "ui_dir": "/opt/dist",
         "bind_addr": "<%= @storage_ip%>",
         "client_addr": "<%= @storage_ip%>",
-        "start_join": ["<%= @storage_ip1%>", "<%= @storage_ip2%>", "<%= @storage_ip3%>"],
+        "start_join": <%= @storage_ips%>,
         "enable_syslog": true
 }
 
