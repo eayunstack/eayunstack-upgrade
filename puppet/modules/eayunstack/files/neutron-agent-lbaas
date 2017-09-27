@@ -471,7 +471,7 @@ neutron_lbaas_agent_stop() {
     clean_up
     sleep 1
     clean_up_namespace
-    if ! ocf_is_true "$OCF_RESKEY_auto_reschedule_pools" ; then
+    if ocf_is_true "$OCF_RESKEY_auto_reschedule_pools" ; then
         # reschedule to alive lbaas agent
         q-agent-cleanup.py --agent=lbaas --reschedule --remove-self ${AUTH_TAIL} 2>&1 >> /var/log/neutron/rescheduling.log &
     fi
