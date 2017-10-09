@@ -25,3 +25,5 @@ if [ -f $PIDFILE ]; then
 fi
 echo `lsof -t ${DEVICE}` > $PIDFILE
 chmod 444 $PIDFILE
+ip rule add from $IP lookup main pref 1
+ip rule add to $IP lookup main pref 1
