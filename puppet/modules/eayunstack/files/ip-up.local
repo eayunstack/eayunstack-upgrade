@@ -9,6 +9,7 @@ BINARY="/usr/sbin/pppd"
 OPTIONS_FILE="/var/lib/neutron/pptp/$VPNSERVICE/ppp_options"
 
 if [ -f $PIDFILE ]; then
+    dev=$(ip neigh show proxy to ${IP} | sed "s/^.*dev \([^ ]*\).*/\1/")
     pid=$(cat ${PIDFILE})
     if [ -f /proc/${pid}/cmdline ]; then
         cmd_info=($(cat /proc/${pid}/cmdline | strings))
@@ -17,6 +18,9 @@ if [ -f $PIDFILE ]; then
         if [ ${cmd_info[0]} == "$BINARY" -a ${cmd_info[3]} == "$OPTIONS_FILE" -a ${cmd_info[10]} == "$IP" ]; then
             kill -HUP $pid
         fi
+    fi
+    if [ -n "$dev" ]; then
+        ip neigh add proxy $IP dev $dev
     fi
 fi
 echo `lsof -t ${DEVICE}` > $PIDFILE
