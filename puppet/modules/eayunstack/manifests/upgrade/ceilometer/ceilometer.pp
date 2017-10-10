@@ -73,6 +73,17 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       ],
     }
 
+    augeas { 'ceilometer-event-store':
+      context => '/files/etc/ceilometer/ceilometer.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/ceilometer/ceilometer.conf',
+      changes => [
+        'set notification/store_events False',
+      ],
+      require => Package['openstack-ceilometer-common'],
+      notify  => Service['openstack-ceilometer-notification'],
+    }
+
     augeas { 'ceilometer-database':
       context => '/files/etc/ceilometer/ceilometer.conf',
       lens    => 'Puppet.lns',
