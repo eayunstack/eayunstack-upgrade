@@ -3,9 +3,25 @@
 VPNSERVICE=$6
 IP=$5
 DEVICE=$2
+
 PIDFILE="/var/lib/neutron/pptp/$VPNSERVICE/connections/$IP"
+BINARY="/usr/sbin/pppd"
+OPTIONS_FILE="/var/lib/neutron/pptp/$VPNSERVICE/ppp_options"
+
 if [ -f $PIDFILE ]; then
-    kill -HUP `cat $PIDFILE`
+    dev=$(ip neigh show proxy to ${IP} | sed "s/^.*dev \([^ ]*\).*/\1/")
+    pid=$(cat ${PIDFILE})
+    if [ -f /proc/${pid}/cmdline ]; then
+        cmd_info=($(cat /proc/${pid}/cmdline | strings))
+        # The command line content is:
+        # /usr/sbin/pppd local file /var/lib/neutron/pptp/$VPNSERVICE/ppp_options 115200 plugin /usr/lib64/pptpd/pptpd-logwtmp.so pptpd-original-ip $IP remotenumber $IP
+        if [ ${cmd_info[0]} == "$BINARY" -a ${cmd_info[3]} == "$OPTIONS_FILE" -a ${cmd_info[10]} == "$IP" ]; then
+            kill -HUP $pid
+        fi
+    fi
+    if [ -n "$dev" ]; then
+        ip neigh add proxy $IP dev $dev
+    fi
 fi
 echo `lsof -t ${DEVICE}` > $PIDFILE
 chmod 444 $PIDFILE
