@@ -10,6 +10,7 @@ class eayunstack::upgrade::neutron (
       'python-neutron', 'openstack-neutron', 'openstack-neutron-ml2',
       'openstack-neutron-openvswitch', 'openstack-neutron-vpn-agent',
       'openstack-neutron-metering-agent', 'pptpd', 'python-neutronclient',
+      'libreswan',
     ]
     package { $packages:
       ensure => latest,
