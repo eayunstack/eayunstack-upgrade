@@ -25,6 +25,10 @@ eayunstack_docker_images:
     image_name: "{{ eayunstack_docker_prefix }}/trove-db-sync"
     file_name: "eayunstack_trove_db_sync.latest"
     push: "True"
+  zaqar_server:
+    image_name: "{{ eayunstack_docker_prefix }}/zaqar-base"
+    file_name: "eayunstack_zaqar_server.latest"
+    push: "True"
 
 eayunstack_registry_diretory: "/var/lib/eayunstack-registry"
 eayunstack_registry_port: "5010"

@@ -1,0 +1,19 @@
+---
+- name: Restart zaqar-server container
+  vars:
+    service_name: "zaqar-server"
+    service: "{{ zaqar_services[service_name] }}"
+    zaqar_conf: "{{ zaqar_confs.results|selectattr('item.key', 'match', 'zaqar.conf')|first }}"
+    uwsgi_conf: "{{ zaqar_confs.results|selectattr('item.key', 'match', 'uwsgi.conf')|first }}"
+    zaqar_server_container: "{{ check_zaqar_containers.results|selectattr('item.key', 'match', service_name)|first }}"
+  kolla_docker:
+    action: "recreate_or_restart_container"
+    name: "{{ service.container_name }}"
+    image: "{{ service.image }}"
+    volumes: "{{ service.volumes }}"
+    environment:
+      DAEMON: "zaqar-server"
+    restart_policy: "{{ docker_restart_policy }}"
+  when: zaqar_conf.changed | bool
+        or uwsgi_conf.changed | bool
+        or zaqar_server_container.changed | bool

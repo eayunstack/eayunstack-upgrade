@@ -31,11 +31,19 @@ cinder_api_port: "8776"
 # Trove
 trove_api_port: "8779"
 
+# Zaqar
+zaqar_port: "8889"
+zaqar_mongodb_nodes: ""
+mongo_primary_node: ""
+
 # Neutron
 neutron_api_port: "9696"
 
 # RabbitMQ
 rabbit_port: "5673"
+
+# MongoDB
+mongo_port: "27017"
 
 # Docker registry
 eayunstack_registry_port: "5010"
