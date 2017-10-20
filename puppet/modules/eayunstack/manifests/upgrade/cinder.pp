@@ -39,6 +39,16 @@ class eayunstack::upgrade::cinder (
       ],
     }
 
+    augeas { 'rbd-flatten-volume-from-snapshot':
+      context => '/files/etc/cinder/cinder.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/cinder/cinder.conf',
+      changes => [
+        'setm *[volume_driver = "cinder.volume.drivers.rbd.RBDDriver"] rbd_flatten_volume_from_snapshot True',
+      ],
+      notify  => Service['openstack-cinder-volume'],
+    }
+
     exec {'cinder-db-sync':
       command     => 'cinder-manage db sync',
       path        => '/usr/bin',
@@ -52,6 +62,7 @@ class eayunstack::upgrade::cinder (
       notify => [
         Exec['cinder-db-sync'],
         Augeas['add-nova-admin-info'],
+        Augeas['rbd-flatten-volume-from-snapshot'],
         Service['openstack-cinder-api'],
         Service['openstack-cinder-scheduler'],
         Service['openstack-cinder-volume'],
