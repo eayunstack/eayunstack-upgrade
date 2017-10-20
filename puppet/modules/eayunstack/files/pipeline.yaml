@@ -46,6 +46,62 @@ sources:
            - "network.services.es.lb.http.*"
       sinks:
           - meter_sink
+    - name: db_database_source
+      interval: 60
+      meters:
+          - "mysql.total.connections"
+          - "mysql.threads.connections"
+          - "mysql.slow.querys"
+          - "mysql.sync.delay"
+          - "mysql.scan.full.table"
+          - "mysql.buffer.*"
+          - "mysql.qcahce.query.hits.ratio"
+          - "mysql.cached.connections.hits.ratio"
+          - "mysql.threads.running"
+          - "mysql.max.connections"
+          - "mysql.transaction.*"
+          - "mysql.total.select"
+          - "mongo.max.connections"
+          - "mongo.connections.usage"
+          - "mongo.total.requests"
+          - "mongo.insert.requests"
+          - "mongo.query.requests"
+          - "mongo.update.requests"
+          - "mongo.delete.requests"
+          - "mongo.getmore.requests"
+          - "mongo.command.requests"
+          - "redis.memory.usage"
+          - "redis.total.received.connections"
+          - "redis.clients.connections"
+          - "redis.total.keys"
+          - "redis.expire.keys"
+          - "redis.evicte.keys"
+          - "redis.keyspace.*"
+      sinks:
+          - meter_sink
+    - name: db_database_ps_source
+      interval: 60
+      meters:
+          - "mysql.qps"
+          - "mysql.tps"
+          - "mongo.qps"
+          - "redis.qps"
+      sinks:
+          - db_database_ps_sink
+    - name: db_database_mr_qps
+      interval: 60
+      meters:
+          - "mysql.replace.qps"
+          - "redis.set.qps"
+          - "redis.list.qps"
+          - "redis.string.qps"
+          - "redis.hash.qps"
+          - "redis.zset.qps"
+          - "redis.hyperloglog.qps"
+          - "redis.pubsub.qps"
+          - "redis.transaction.qps"
+      sinks:
+          - db_database_mr_qps_sink
 sinks:
     - name: meter_sink
       transformers:
@@ -73,6 +129,36 @@ sinks:
                 target:
                     map_to:
                         name: "\\1.\\2.bytes.rate"
+                        unit: "\\1/s"
+                    type: "gauge"
+      publishers:
+          - notifier://
+    - name: db_database_ps_sink
+      transformers:
+          - name: "rate_of_change"
+            parameters:
+                source:
+                    map_from:
+                        name: "(mysql|mongo|redis)\\.(qps|tps)"
+                        unit: "(request)"
+                target:
+                    map_to:
+                        name: "\\1.\\2.rate"
+                        unit: "\\1/s"
+                    type: "gauge"
+      publishers:
+          - notifier://
+    - name: db_database_mr_qps_sink
+      transformers:
+          - name: "rate_of_change"
+            parameters:
+                source:
+                    map_from:
+                        name: "(mysql|redis)\\.(replace|set|list|string|hash|zset|hyperloglog|pubsub|transaction)\\.qps"
+                        unit: "(request)"
+                target:
+                    map_to:
+                        name: "\\1.\\2.qps.rate"
                         unit: "\\1/s"
                     type: "gauge"
       publishers:
