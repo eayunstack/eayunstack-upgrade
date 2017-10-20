@@ -2,12 +2,25 @@ class eayunstack::upgrade::auto_evacuate::auto_evacuate (
   $fuel_settings,
 ) {
   $nodes = $fuel_settings['nodes']
-  $node = filter_nodes($nodes, 'role', 'controller')
-  $first_node = filter_nodes($nodes, 'role', 'primary-controller')
-  $storage_ip1 = $first_node[0]['storage_address']
-  $storage_ip2 = $node[0]['storage_address']
-  $storage_ip3 = $node[1]['storage_address']
-  $host_names = [$first_node[0]['fqdn'], $node[0]['fqdn'], $node[1]['fqdn']]
+  $control_nodes = filter_nodes($nodes, 'role', 'controller')
+  $deployment_mode = $fuel_settings['deployment_mode']
+
+  if $deployment_mode == 'multinode' {
+    $storage_ip1 = $control_nodes[0]['storage_address']
+    $host_names = [$control_nodes[0]['fqdn']]
+    $bootstrap_expect = 1
+    $storage_ips = [$storage_ip1]
+  }
+  else {
+    $first_node = filter_nodes($nodes, 'role', 'primary-controller')
+    $storage_ip1 = $first_node[0]['storage_address']
+    $storage_ip2 = $control_nodes[0]['storage_address']
+    $storage_ip3 = $control_nodes[1]['storage_address']
+    $host_names = [$first_node[0]['fqdn'], $control_nodes[0]['fqdn'], $control_nodes[1]['fqdn']]
+    $bootstrap_expect = 3
+    $storage_ips = [$storage_ip1, $storage_ip2, $storage_ip3]
+  }
+
   $host_name = $fuel_settings['fqdn']
   $local_ips = filter_nodes($nodes, 'fqdn', $host_name)
   $storage_ip = $local_ips[0]['storage_address']
