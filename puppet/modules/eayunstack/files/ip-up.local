@@ -14,8 +14,9 @@ if [ -f $PIDFILE ]; then
     if [ -f /proc/${pid}/cmdline ]; then
         cmd_info=($(cat /proc/${pid}/cmdline | strings))
         # The command line content is:
-        # /usr/sbin/pppd local file /var/lib/neutron/pptp/$VPNSERVICE/ppp_options 115200 plugin /usr/lib64/pptpd/pptpd-logwtmp.so pptpd-original-ip $IP remotenumber $IP
-        if [ ${cmd_info[0]} == "$BINARY" -a ${cmd_info[3]} == "$OPTIONS_FILE" -a ${cmd_info[10]} == "$IP" ]; then
+        # /usr/sbin/pppd local file /var/lib/neutron/pptp/$VPNSERVICE/ppp_options 115200 plugin /usr/lib64/pptpd/pptpd-logwtmp.so \
+        #   pptpd-original-ip $ORIGINAL_IP remotenumber $ORIGINAL_IP
+        if [ ${cmd_info[0]} == "$BINARY" -a ${cmd_info[3]} == "$OPTIONS_FILE" ]; then
             kill -HUP $pid
         fi
     fi
