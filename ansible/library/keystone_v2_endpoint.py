@@ -228,20 +228,21 @@ class ManageKeystoneV2Endpoint(object):
                 endpoint that matches the service
                 type, name, and region.
             '''
-            if existed_endpoint is None:
+            if existed_endpoint:
+                if not self._compare_endpoint_info(existed_endpoint,
+                                                   endpoint_dict):
+                    delete_existed = True
+                else:
+                    endpoint = existed_endpoint
+
+            if (not existed_endpoint or
+                    delete_existed):
                 self.state_change = True
                 endpoint = self.keystone.endpoints.create(
                     region=region,
                     service_id=service.id,
                     **endpoint_dict
                 )
-            elif existed_endpoint is not None:
-                if not self._compare_endpoint_info(existed_endpoint,
-                                                   endpoint_dict):
-                    self.state_change = True
-                    delete_existed = True
-                else:
-                    endpoint = existed_endpoint
 
         elif state == 'absent':
             if existed_endpoint is not None:
