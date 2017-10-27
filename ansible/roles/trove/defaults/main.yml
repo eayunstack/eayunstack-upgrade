@@ -10,28 +10,34 @@ trove_database_name: "trove"
 trove_services:
   trove-api:
     container_name: trove_api
-    image: "{{ trove_api_image }}"
+    image: "{{ trove_base_image }}"
     volumes:
       - "{{ trove_sys_homedir }}:{{ trove_sys_homedir }}"
       - "{{ eayunstack_config_base }}/{{ project_name }}:{{ trove_config_diretory }}:ro"
       - "{{ timezone_path }}:/etc/localtime:ro"
       - "{{ eayunstack_log_base }}/{{ project_name }}:{{ trove_log_directory }}"
+    environment:
+      DAEMON: "trove-api"
   trove-taskmanager:
     container_name: trove_taskmanager
-    image: "{{ trove_taskmanager_image }}"
+    image: "{{ trove_base_image }}"
     volumes:
       - "{{ trove_sys_homedir }}:{{ trove_sys_homedir }}"
       - "{{ eayunstack_config_base }}/{{ project_name }}:{{ trove_config_diretory }}:ro"
       - "{{ timezone_path }}:/etc/localtime:ro"
       - "{{ eayunstack_log_base }}/{{ project_name }}:{{ trove_log_directory }}"
+    environment:
+      DAEMON: "trove-taskmanager"
   trove-conductor:
     container_name: trove_conductor
-    image: "{{ trove_conductor_image }}"
+    image: "{{ trove_base_image }}"
     volumes:
       - "{{ trove_sys_homedir }}:{{ trove_sys_homedir }}"
       - "{{ eayunstack_config_base }}/{{ project_name }}:{{ trove_config_diretory }}:ro"
       - "{{ timezone_path }}:/etc/localtime:ro"
       - "{{ eayunstack_log_base }}/{{ project_name }}:{{ trove_log_directory }}"
+    environment:
+      DAEMON: "trove-conductor"
 
 trove_config_diretory: /etc/trove
 trove_config_files:
@@ -102,10 +108,7 @@ trove_guestagent_conf:
     swift_container_allowed_origins: "http://*.eayun.com, https://*.eayun.com"
     guest_log_limit: "10485760"
 
-trove_api_image: "{{ docker_registry }}/{{ eayunstack_docker_prefix }}/trove-api"
-trove_taskmanager_image: "{{ docker_registry }}/{{ eayunstack_docker_prefix }}/trove-taskmanager"
-trove_conductor_image: "{{ docker_registry }}/{{ eayunstack_docker_prefix }}/trove-conductor"
-trove_db_sync_image: "{{ docker_registry }}/{{ eayunstack_docker_prefix }}/trove-db-sync"
+trove_base_image: "{{ docker_registry }}/{{ eayunstack_docker_prefix }}/trove-base"
 
 trove_logrotate_conf:
   rotate: "4"
