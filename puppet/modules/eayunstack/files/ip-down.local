@@ -3,3 +3,5 @@
 VPNSERVICE=$6
 IP=$5
 rm /var/lib/neutron/pptp/$VPNSERVICE/connections/$IP
+ip rule del from $IP lookup main
+ip rule del to $IP lookup main
