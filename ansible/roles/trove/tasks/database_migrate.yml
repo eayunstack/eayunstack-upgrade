@@ -6,8 +6,10 @@
     action: "start_container"
     detach: False
     name: "trove_database_migrate"
-    image: "{{ trove_db_sync_image }}"
+    image: "{{ trove_base_image }}"
     volumes: "{{ trove_services['trove-api']['volumes'] }}"
+    environment:
+      DAEMON: "trove-db-sync"
     restart_policy: "never"
   register: trove_database_migrate
   when: trove_database.changed | bool

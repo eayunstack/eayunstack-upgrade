@@ -12,6 +12,7 @@
     name: "{{ service.container_name }}"
     image: "{{ service.image }}"
     volumes: "{{ service.volumes }}"
+    environment: "{{ service.environment }}"
     restart_policy: "{{ docker_restart_policy }}"
   when: trove_conf.changed | bool
         or trove_api_container.changed | bool
@@ -30,6 +31,7 @@
     name: "{{ service.container_name }}"
     image: "{{ service.image }}"
     volumes: "{{ service.volumes }}"
+    environment: "{{ service.environment }}"
     restart_policy: "{{ docker_restart_policy }}"
   when: trove_conf.changed | bool
         or trove_taskmanager_conf.changed | bool
@@ -49,6 +51,7 @@
     name: "{{ service.container_name }}"
     image: "{{ service.image }}"
     volumes: "{{ service.volumes }}"
+    environment: "{{ service.environment }}"
     restart_policy: "{{ docker_restart_policy }}"
   when: trove_conf.changed | bool
         or trove_conductor_conf.changed | bool

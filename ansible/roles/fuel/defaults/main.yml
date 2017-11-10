@@ -2,28 +2,16 @@
 packages_needed_on_fuel:
   - python-docker-py
 
-images_directory: "{{ eayunstack_ansible_base }}/docker_images"
+images_directory: "{{ eayunstack_base }}/docker_images"
 
 eayunstack_docker_images:
   registry:
     image_name: "{{ eayunstack_docker_prefix }}/registry"
     file_name: "eayunstack_registry.latest"
     push: "False"
-  trove_api:
-    image_name: "{{ eayunstack_docker_prefix }}/trove-api"
-    file_name: "eayunstack_trove_api.latest"
-    push: "True"
-  trove_taskmanager:
-    image_name: "{{ eayunstack_docker_prefix }}/trove-taskmanager"
-    file_name: "eayunstack_trove_taskmanager.latest"
-    push: "True"
-  trove_conductor:
-    image_name: "{{ eayunstack_docker_prefix }}/trove-conductor"
-    file_name: "eayunstack_trove_conductor.latest"
-    push: "True"
-  trove_db_sync:
-    image_name: "{{ eayunstack_docker_prefix }}/trove-db-sync"
-    file_name: "eayunstack_trove_db_sync.latest"
+  trove_base:
+    image_name: "{{ eayunstack_docker_prefix }}/trove-base"
+    file_name: "eayunstack_trove_base.latest"
     push: "True"
 
 eayunstack_registry_diretory: "/var/lib/eayunstack-registry"
