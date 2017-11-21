@@ -13,6 +13,10 @@ class eayunstack::upgrade (
   class { 'eayunstack::upgrade::cinder':
     fuel_settings => $fuel_settings,
   }
+  class { 'eayunstack::upgrade::eayunstack_notifier':
+    fuel_settings => $fuel_settings,
+    env_settings  => $env_settings,
+  }
   class { 'eayunstack::upgrade::glance':
     fuel_settings => $fuel_settings,
   }
