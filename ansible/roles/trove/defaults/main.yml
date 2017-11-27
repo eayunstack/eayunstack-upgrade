@@ -79,7 +79,7 @@ trove_logging_debug: "True"
 
 trove_conf:
   default:
-    max_accepted_volume_size: "500"
+    max_accepted_volume_size: "1000"
     max_instances_per_tenant: "5"
     max_volumes_per_tenant: "100"
     max_backups_per_tenant: "5"
