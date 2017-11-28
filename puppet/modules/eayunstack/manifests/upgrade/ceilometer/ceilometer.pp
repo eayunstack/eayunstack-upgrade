@@ -110,6 +110,16 @@ class eayunstack::upgrade::ceilometer::ceilometer (
       notify  => Exec['ceilometer-data-expire'],
     }
 
+    augeas { 'notification-driver':
+      context => '/files/etc/ceilometer/ceilometer.conf',
+      lens    => 'Puppet.lns',
+      incl    => '/etc/ceilometer/ceilometer.conf',
+      changes => [
+        'set DEFAULT/notification_driver messagingv2',
+      ],
+      require => Package['openstack-ceilometer-common'],
+      notify  => Service['httpd'],
+    }
 
     if $fuel_settings['deployment_mode'] == 'ha_compact' {
       $systemd_services = [
