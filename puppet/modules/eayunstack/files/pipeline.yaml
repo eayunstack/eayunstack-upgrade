@@ -51,11 +51,11 @@ sources:
       meters:
           - "mysql.total.connections"
           - "mysql.threads.connections"
-          - "mysql.slow.querys"
+          - "mysql.slow.queries"
           - "mysql.sync.delay"
           - "mysql.scan.full.table"
           - "mysql.buffer.*"
-          - "mysql.qcahce.query.hits.ratio"
+          - "mysql.qcache.query.hits.ratio"
           - "mysql.cached.connections.hits.ratio"
           - "mysql.threads.running"
           - "mysql.max.connections"
