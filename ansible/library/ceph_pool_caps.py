@@ -168,7 +168,7 @@ class CephUserPoolCaps(object):
             cap_split = cap.strip().split()
             if (len(cap_split) == 3 and
                     cap_split[2].startswith('pool=')):
-                pool = cap_split[2].strip('pool=')
+                pool = cap_split[2][5:]
                 acl = cap_split[1]
                 self.caps['osd']['pools'].append({'pool': pool,
                                                   'acl': acl})
@@ -199,7 +199,7 @@ class CephUserPoolCaps(object):
             osd_pool_args.append('allow %s pool=%s' % (cap['acl'],
                                                        cap['pool']))
 
-        return ','.join(osd_pool_args)
+        return ', '.join(osd_pool_args)
 
 
 def generate_module():
