@@ -1,0 +1,7 @@
+[uwsgi]
+strict = true
+http = :{{ zaqar_port }}
+processes = 32
+threads = 4
+wsgi-file = /usr/lib/python2.7/site-packages/zaqar/transport/wsgi/app.py
+callable = app

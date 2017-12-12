@@ -1,0 +1,6 @@
+---
+- name: Pulling zaqar images
+  kolla_docker:
+    action: "pull_image"
+    image: "{{ zaqar_base_image }}"
+

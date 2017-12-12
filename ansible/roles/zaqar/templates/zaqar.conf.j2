@@ -1,0 +1,40 @@
+[DEFAULT]
+auth_strategy = keystone
+debug = {{ zaqar_logging_debug }}
+unreliable = True
+admin_mode = True
+log_file = {{ zaqar_log_directory }}/zaqar-server.log
+[keystone_authtoken]
+auth_host = {{ management_vip }}
+auth_port = {{ keystone_api_port }}
+auth_protocol = http
+admin_user = zaqar
+admin_password = {{ zaqar_keystone_password }}
+admin_tenant_name = services
+token_cache_time = 3600
+[drivers]
+transport = wsgi
+message_store = mongodb
+management_store = mongodb
+[drivers:transport:wsgi]
+bind = 0.0.0.0
+[drivers:management_store:mongodb]
+uri = {{ zaqar_mongodb_uri }}
+database = message_manage
+[drivers:message_store:mongodb]
+uri = {{ zaqar_mongodb_uri }}
+database = message
+[transport]
+max_queues_per_page = 1000
+max_queue_metadata = 65536
+max_mesages_per_page = 10
+max_messages_post_size = 65536
+max_message_ttl = 1296000
+max_message_delay_ttl = 604800
+max_claim_ttl = 43200
+default_topic_message_ttl = 345600
+[storage]
+message_pipeline = zaqar.notification.notifier
+[notification]
+max_notifier_workers = 100
+max_notifier_retries = 15

@@ -1,0 +1,46 @@
+- name: ensure zaqar tenant, user
+  run_once: True
+  keystone:
+    region_name: "{{ keystone_region }}"
+    endpoint: "{{ keystone_admin_endpoint_v3 }}"
+    token: "{{ keystone.admin_token }}"
+    command: "{{ item.command }}"
+    user_name: "zaqar"
+    password: "{{ zaqar_keystone_password }}"
+    project_name: "{{ item.tenant | default(None) }}"
+    role_name: "{{ item.role | default(None) }}"
+    service_name: "{{ item.service_name | default(None) }}"
+    service_type: "{{ item.service_type | default(None) }}"
+    description: "{{ item.description | default(None) }}"
+  with_items:
+    - { command: 'ensure_user' }
+    - { command: 'ensure_user_role', tenant: 'services', role: 'admin' }
+    - { command: 'ensure_service', service_name: 'zaqar', service_type: 'messaging', description: 'Zaqar Messaging Service' }
+
+- name: ensure zaqar endpoint
+  run_once: True
+  keystone_v2_endpoint:
+    region_name: "{{ keystone_region }}"
+    endpoint: "{{ keystone_admin_endpoint_v2 }}"
+    token: "{{ keystone.admin_token }}"
+    service_name: "zaqar"
+    service_type: "messaging"
+    endpoint_dict: "{{ zaqar_endpoints }}"
+
+#- name: Creating zaqar mongodb user and setting permissions
+#  mongodb_user:
+#    login_password: "{{ ceilometer.db_password }}"
+#    login_user: admin
+#    login_host: "{{ mongo_primary_node }}"
+#    database: admin
+#    name: zaqar
+#    password: "{{ zaqar_database_password }}"
+#    roles: root
+#    state: present
+
+
+- include: pull.yml
+
+- include: config.yml
+
+

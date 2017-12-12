@@ -1,0 +1,72 @@
+---
+- name: Ensuring system group exist
+  group:
+    name: zaqar
+    gid: "{{ zaqar_sys_gid }}"
+
+- name: Ensuring system user exist
+  user:
+    name: zaqar
+    comment: "zaqar Daemons"
+    uid: "{{ zaqar_sys_uid }}"
+    group: zaqar
+    groups: zaqar
+    home: "{{ zaqar_sys_homedir }}"
+    shell: "/sbin/nologin"
+ 
+- name: Ensuring config directory exist
+  file:
+    path: "{{ eayunstack_config_base }}/{{ project_name }}"
+    state: "directory"
+    recurse: yes
+
+- name: Ensuring log directory exist
+  file:
+    path: "{{ eayunstack_log_base }}/{{ project_name }}"
+    state: "directory"
+    owner: zaqar
+
+- name: Copy policy.json
+  copy:
+    src: policy.json
+    dest: "{{ eayunstack_config_base }}/{{ project_name }}/"
+
+- name: Copy logging.conf
+  copy:
+    src: logging.conf
+    dest: "{{ eayunstack_config_base }}/{{ project_name }}/"
+
+- name: Copy zaqar-logrotate config
+  template:
+    src: zaqar-logrotate.conf.j2
+    dest: "/etc/logrotate.d/eayunstack-docker-{{ project_name }}"
+
+- name: Copying over zaqar conf files
+  template:
+    src: "{{ item.key }}.j2"
+    dest: "{{ eayunstack_config_base }}/{{ project_name }}/{{ item.key }}"
+  register: zaqar_confs
+  with_dict: "{{ zaqar_config_files }}"
+  notify: "{{ item.value.handlers | default([]) }}"
+
+- name: Check zaqar containers
+  kolla_docker:
+    action: "compare_container"
+    name: "{{ item.value.container_name }}"
+    image: "{{ item.value.image }}"
+    volumes: "{{ item.value.volumes }}"
+    restart_policy: "{{ docker_restart_policy }}"
+  with_dict: "{{ zaqar_services }}"
+  register: check_zaqar_containers
+  notify:
+    - "Restart {{ item.key }} container"
+
+- name: Ensuring iptables for zaqar
+  iptables:
+    action: insert
+    chain: INPUT
+    protocol: tcp
+    match: multiport
+    destination_port: "{{ zaqar_port }}"
+    jump: ACCEPT
+  notify: "Save iptables rules"

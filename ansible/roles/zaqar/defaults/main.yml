@@ -1,0 +1,44 @@
+---
+project_name: zaqar
+
+zaqar_sys_uid: 971
+zaqar_sys_gid: 971
+zaqar_sys_homedir: "/var/lib/zaqar"
+
+zaqar_services:
+  zaqar-server:
+    container_name: zaqar_server
+    image: "{{ zaqar_base_image }}"
+    volumes:
+      - "{{ zaqar_sys_homedir }}:{{ zaqar_sys_homedir }}"
+      - "{{ eayunstack_config_base }}/{{ project_name }}:{{ zaqar_config_diretory }}:ro"
+      - "{{ timezone_path }}:/etc/localtime:ro"
+      - "{{ eayunstack_log_base }}/{{ project_name }}:{{ zaqar_log_directory }}"
+
+zaqar_config_diretory: /etc/zaqar
+zaqar_config_files:
+  zaqar.conf:
+    handlers:
+      - Restart zaqar-server container
+  uwsgi.conf:
+    handlers:
+      - Restart zaqar-server container
+
+zaqar_public_endpoint: "http://{{ public_vip }}:{{ zaqar_port }}"
+zaqar_internal_endpoint: "http://{{ management_vip }}:{{ zaqar_port }}"
+zaqar_admin_endpoint: "http://{{ management_vip }}:{{ zaqar_port }}"
+
+zaqar_endpoints:
+  publicurl: "{{ zaqar_public_endpoint }}"
+  internalurl: "{{ zaqar_internal_endpoint }}"
+  adminurl: "{{ zaqar_admin_endpoint }}"
+
+zaqar_log_directory: "/var/log/{{ project_name }}"
+zaqar_logging_debug: "True"
+zaqar_mongodb_uri: "mongodb+replicaSet://zaqar:{{ zaqar_database_password }}@{{ zaqar_mongodb_nodes }}"
+
+zaqar_base_image: "{{ docker_registry }}/{{ eayunstack_docker_prefix }}/zaqar-base"
+
+zaqar_logrotate_conf:
+  rotate: "4"
+  minsize: "30M"

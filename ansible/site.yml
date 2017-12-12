@@ -19,6 +19,7 @@
   roles:
     - trove
     - haproxy
+    - zaqar
   handlers:
     - name: Save iptables rules
       shell: |

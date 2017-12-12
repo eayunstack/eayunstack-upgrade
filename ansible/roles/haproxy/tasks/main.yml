@@ -4,3 +4,9 @@
     src: "trove-api-haproxy.conf.j2"
     dest: "{{ haproxy_config_base }}/{{ trove_haproxy_order }}-trove-api.cfg"
   notify: Reload HAProxy
+
+- name: Copying over zaqar haproxy conf files
+  template:
+    src: "zaqar-server-haproxy.conf.j2"
+    dest: "{{ haproxy_config_base }}/{{ zaqar_haproxy_order }}-zaqar-server.cfg"
+  notify: Reload HAProxy
