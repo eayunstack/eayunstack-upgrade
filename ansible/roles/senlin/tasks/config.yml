@@ -1,0 +1,74 @@
+---
+- name: Ensuring system group exist
+  group:
+    name: senlin
+    gid: "{{ senlin_sys_gid }}"
+
+- name: Ensuring system user exist
+  user:
+    name: senlin
+    comment: "senlin Daemons"
+    uid: "{{ senlin_sys_uid }}"
+    group: senlin
+    groups: senlin
+    home: "{{ senlin_sys_homedir }}"
+    shell: "/sbin/nologin"
+
+- name: Ensuring config directory exist
+  file:
+    path: "{{ eayunstack_config_base }}/{{ project_name }}"
+    state: "directory"
+    recurse: yes
+
+- name: Ensuring log directory exist
+  file:
+    path: "{{ eayunstack_log_base }}/{{ project_name }}"
+    state: "directory"
+    owner: senlin
+
+- name: Copy api-paste.ini
+  copy:
+    src: api-paste.ini
+    dest: "{{ eayunstack_config_base }}/{{ project_name }}/"
+
+- name: Copy policy.json
+  copy:
+    src: policy.json
+    dest: "{{ eayunstack_config_base }}/{{ project_name }}/"
+
+- name: Copy senlin-logrotate config
+  template:
+    src: senlin-logrotate.conf.j2
+    dest: "/etc/logrotate.d/eayunstack-docker-{{ project_name }}"
+
+- name: Copying over senlin conf files
+  vars:
+    service_name: "{{ item.key }}"
+  template:
+    src: "{{ item.key }}.j2"
+    dest: "{{ eayunstack_config_base }}/{{ project_name }}/{{ item.key }}"
+  register: senlin_confs
+  with_dict: "{{ senlin_config_files }}"
+  notify: "{{ item.value.handlers | default([]) }}"
+
+- name: Check senlin containers
+  kolla_docker:
+    action: "compare_container"
+    name: "{{ item.value.container_name }}"
+    image: "{{ item.value.image }}"
+    volumes: "{{ item.value.volumes }}"
+    restart_policy: "{{ docker_restart_policy }}"
+  with_dict: "{{ senlin_services }}"
+  register: check_senlin_containers
+  notify:
+    - "Restart {{ item.key }} container"
+
+- name: Ensuring iptables for senlin
+  iptables:
+    action: insert
+    chain: INPUT
+    protocol: tcp
+    match: multiport
+    destination_port: "{{ senlin_api_port }}"
+    jump: ACCEPT
+  notify: "Save iptables rules"
